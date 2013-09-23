@@ -21,7 +21,7 @@ def split_multi_fasta(fasta_in):
     curr_dir=os.getcwd()
     for record in SeqIO.parse(open(fasta_in, "U"), "fasta"):
         f_out = os.path.join(curr_dir,record.id+'.fasta')
-    SeqIO.write([record],open(f_out,'w'),"fasta")
+        SeqIO.write([record],open(f_out,'w'),"fasta")
     
 def combine_seqs(dir_path):
     handle = open("combined.seqs", "w")
@@ -147,7 +147,7 @@ def test_file(option, opt_str, value, parser):
 def run_loop(seq_path, markers, start_dir, tree_path, iterations):
     all_seqs = [ ]
     new_dir=os.getcwd()
-    out_results = open("results.txt", "a")
+    out_results = open("marker_results.txt", "a")
     for record in SeqIO.parse(open(seq_path, "U"), "fasta"):
         all_seqs.append(record.id)
     for i in range(1, iterations):
@@ -203,7 +203,7 @@ def main(directory, seqs, markers, tree, iterations):
     os.chdir("%s/scratch" % ap)
     os.system("formatdb -i combined.seqs -p F")
     run_loop(seq_path, markers, ap, tree_path, iterations)
-    os.system("cp results.txt %s" % ap)
+    os.system("cp marker_results.txt %s" % ap)
     os.chdir(ap)
     os.system('rm -rf %s/scratch' % ap)
     
