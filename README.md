@@ -71,6 +71,10 @@ the names don't match compared to the whole genome phylogeny.
 *An additional script Phylomark_v1_1_R.py is included to provide more detailed analysis about
 nucleotide frequencies in each genomic fragment
 
+-If there are dashes in your genome names, they get changed to underscores somewhere in the pipeline.
+While I'm trying to track down the source of the error, the current fix is to either remove dashes
+or replace them with underscores
+
 -Two new dependencies are required for this script:
 
 R (tested version = 2.14.1 - R v3 appears to not be supported at this time)
