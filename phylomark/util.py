@@ -219,7 +219,7 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
                                                   _temp_name(tn, "combined.tree")),
                               shell=True)
         # hashrf doesn't return 0 on success unfortunately
-        num_queries = get_ref_numbers("%s" (_temp_name(tn, "seqs_aligned.fas")))
+        num_queries = get_ref_numbers("%s" % (_temp_name(tn, "seqs_aligned.fas")))
         if int(num_queries) == int(num_refs):
             subprocess.call("hashrf %s 2 -p list -o %s > /dev/null 2>&1" % (_temp_name(tn, "combined.tree"),
                                                                         _temp_name(tn, "result.rf")),
