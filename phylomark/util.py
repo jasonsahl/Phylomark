@@ -303,8 +303,9 @@ def parsed_blast_to_seqs(parsed_file, outfile):
     infile = open(parsed_file, "rU")
     handle = open(outfile, "w")
     for line in infile:
-        fields = line.split(" ")
-        print >> handle, fields[0] + fields[2], "\n", fields[3]
+        fields = line.split()
+        print >> handle, str(fields[0]) + str(fields[2])
+        print >> handle, fields[3]
     handle.close()
 
 def parse_hashrf_file(infile, outfile):
