@@ -251,7 +251,7 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
         subprocess.check_call("FastTree -nt -noboot %s > %s 2> /dev/null" % (_temp_name(tn, "seqs_aligned.fas"),
                                                                              _temp_name(tn, "tmp.tree")),
                               shell=True)
-        value = run_dendropy("%s" % (_temp_name(tn, "tmp.tree"), tree, "%s" % (_temp_name(tn, "tmp.RF"))
+        value = run_dendropy("%s" % (_temp_name(tn, "tmp.tree")), tree, "%s" % (_temp_name(tn, "tmp.RF")))
         #subprocess.check_call("cat %s %s > %s" % (_temp_name(tn, "tmp.tree"),
         #                                          tree,
         #                                          _temp_name(tn, "combined.tree")),
