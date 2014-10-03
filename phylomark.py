@@ -56,6 +56,7 @@ def main(alignment, mask, ref, combined, tree, step_size, frag_length, keep_leng
         pass
     else:
         print "hashrf needs to be in your path!"
+    #check_tree_and_reads(combined, tree)
     reads = split_sequence_by_window(alignment, step_size, frag_length) 
     write_sequences(reads)
     qual_reads = split_quality_values(mask, step_size, frag_length)

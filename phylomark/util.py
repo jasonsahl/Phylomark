@@ -132,6 +132,11 @@ def blast_against_reference(blast_in, combined, blast_type, outfile):
            "-i", blast_in,
            "-d", combined,
            "-o", outfile,
+           "-F", "f",
+           "-q", "-4",
+           "-r", "5",
+           "-b", "2000",
+           "-v", "2000",
            "-m", str(blast_type)]
     subprocess.check_call(cmd)
 
