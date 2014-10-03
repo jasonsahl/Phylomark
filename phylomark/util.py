@@ -8,6 +8,7 @@ import string
 import itertools
 import threading
 import optparse
+import dendropy
 
 try:
     from igs.utils import functional as func
@@ -216,6 +217,13 @@ def get_ref_numbers(combined):
     return len(records)
         
 
+def run_dendropy(tmp_tree, wga_tree, outfile):
+    out = open(outfile, "w")
+    tree_one = dendropy.Tree.get_from_path(wga_tree,schema="newick",preserve_underscores=True)
+    tree_two = dendropy.Tree.get_from_path(tmp_tree,schema="newick",preserve_underscores=True, taxon_set=tree_full.taxon_set)
+    RFs = dendropy.treecalc.robinson_foulds_distance(tree_one, tree_two)
+    print >> out, RFs
+
 def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
     def _temp_name(t, f):
         return t + '_' + f
@@ -243,10 +251,11 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
         subprocess.check_call("FastTree -nt -noboot %s > %s 2> /dev/null" % (_temp_name(tn, "seqs_aligned.fas"),
                                                                              _temp_name(tn, "tmp.tree")),
                               shell=True)
-        subprocess.check_call("cat %s %s > %s" % (_temp_name(tn, "tmp.tree"),
-                                                  tree,
-                                                  _temp_name(tn, "combined.tree")),
-                              shell=True)
+        value = run_dendropy("%s" % (_temp_name(tn, "tmp.tree"), tree, "%s" % (_temp_name(tn, "tmp.RF"))
+        #subprocess.check_call("cat %s %s > %s" % (_temp_name(tn, "tmp.tree"),
+        #                                          tree,
+        #                                          _temp_name(tn, "combined.tree")),
+        #                      shell=True)
         # hashrf doesn't return 0 on success unfortunately
         num_queries = get_ref_numbers("%s" % (_temp_name(tn, "seqs_aligned.fas")))
         if int(num_queries) == int(num_refs):
@@ -256,7 +265,9 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
 
             thread_id = id(threading.current_thread())
             thread_distance_file = str(thread_id) + '_distance.txt'
-            parse_hashrf_file(_temp_name(tn, "result.rf"), thread_distance_file)
+            #parse_hashrf_file(_temp_name(tn, "result.rf"), thread_distance_file)
+            parse_RF_file(_temp_name(tn, "tmp.rf"), thread_distance_file)
+            #parse_RF_file(
             thread_name_file = str(thread_id) + '_name.txt'
             write_strip_name(f, thread_name_file)
             subprocess.check_call(["rm",
@@ -266,8 +277,8 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
                                   _temp_name(tn, "seqs_in.fas"),
                                   _temp_name(tn, "seqs_aligned.fas"),
                                   _temp_name(tn, "tmp.tree"),
-                                  _temp_name(tn, "combined.tree"),
-                                  _temp_name(tn, "result.rf")])
+                                  _temp_name(tn, "combined.tree")])
+                                  #_temp_name(tn, "result.rf")])
             return (thread_distance_file, thread_name_file)
 
     files = os.listdir(fastadir)
@@ -356,6 +367,12 @@ def parse_hashrf_file(infile, outfile):
         if "<0,1>" in line:
             fields = line.split(" ")
             print >> handle, fields[1],
+    handle.close()
+
+def parse_rf_file(infile, outfile):
+    handle = open(outfile, "a")
+    for line in open(infile):
+        print >> handle, line,
     handle.close()
 
 def write_strip_name(filename, outfile):
