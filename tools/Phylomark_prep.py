@@ -8,13 +8,23 @@ import re
 import glob
 import subprocess
 
-from bx.align.tools.thread import get_components_for_species
-from bx.align import maf
-
-from Bio import SeqIO
-
-from igs.utils import cli
-from igs.utils import functional as func
+try:
+    from bx.align.tools.thread import get_components_for_species
+    from bx.align import maf
+except:
+    print "bx-python needs to be installed!"
+    sys.exit()
+try:  
+    from Bio import SeqIO
+except:
+    print "biopython not installed, but needs to be!"
+    sys.exit()
+try:
+    from igs.utils import cli
+    from igs.utils import functional as func
+except:
+    print "You need to add Phylomark to your PYTHONPATH!"
+    sys.exit()
 
 OPTIONS = [
     ('input_maf', '', '--input-maf', 'Input MAF to process', cli.notNone),
@@ -116,6 +126,7 @@ def main(options, _args):
         pass
     else:
         print "mothur needs to be in your path"
+        sys.exit()
     all_fasta = os.path.join(options('general.tmp_dir'), 'all.fasta')
     maf_to_fasta(options('general.input_maf'), all_fasta)
     record_names = os.path.join(options('general.tmp_dir'), 'record_names')

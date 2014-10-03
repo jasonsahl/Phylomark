@@ -3,7 +3,11 @@
 import sys
 import optparse
 import errno
-from phylomark.util import *
+try:
+    from phylomark.util import *
+except:
+    print "your phylomark environment is not set.  Add this directory to your PYTHONPATH"
+    sys.exit()
 
 def test_file(option, opt_str, value, parser):
     try:
@@ -36,27 +40,15 @@ def main(alignment, mask, ref, combined, tree, step_size, frag_length, keep_leng
         except:
             raise TypeError("R needs to be in your path!")
             sys.exc_clear()
-    rc = subprocess.call(['which', 'mothur'])
-    if rc == 0:
-        pass
-    else:
-        print "mothur needs to be in your path!"
-    rd = subprocess.call(['which', 'muscle'])
-    if rd == 0:
-        pass
-    else:
-        print "muscle needs to be in your path!"
-    re = subprocess.call(['which', 'FastTree'])
-    if re == 0:
-        pass
-    else:
-        print "FastTree needs to be in your path!"
-    rf = subprocess.call(['which', 'hashrf'])
-    if rf == 0:
-        pass
-    else:
-        print "hashrf needs to be in your path!"
-    #check_tree_and_reads(combined, tree)
+    dependencies = ['mothur','muscle','FastTree','hashrf']
+    for dependency in dependencies:
+        ra = subprocess.call(['which', '%s' % dependency])
+        if ra == 0:
+            pass
+        else:
+            print "%s is not in your path, but needs to be!" % dependency
+            sys.exit()
+    check_tree_and_reads(combined, tree)
     reads = split_sequence_by_window(alignment, step_size, frag_length) 
     write_sequences(reads)
     qual_reads = split_quality_values(mask, step_size, frag_length)

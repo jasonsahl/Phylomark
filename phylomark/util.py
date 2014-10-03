@@ -9,14 +9,23 @@ import itertools
 import threading
 import optparse
 
-from igs.utils import functional as func
-from igs.utils import logging
-from igs.threading import functional as p_func
+try:
+    from igs.utils import functional as func
+    from igs.utils import logging
+    from igs.threading import functional as p_func
+except:
+    print "you need to add Phylomark to your PYTHONPATH!"
+    sys.exit()
 
-from Bio import SeqIO
-from Bio.Blast import NCBIXML
-from Bio.Seq import reverse_complement
-from Bio.Seq import Seq
+try:
+    from Bio import SeqIO
+    from Bio.Blast import NCBIXML
+    from Bio.Seq import reverse_complement
+    from Bio.Seq import Seq
+    from Bio import Phylo
+except:
+    print "BioPython isn't in your PATH, but needs to be"
+    sys.exit()
 
 class Increments:
     def __init__(self, start, increment):
@@ -140,7 +149,6 @@ def blast_against_reference(blast_in, combined, blast_type, outfile):
            "-m", str(blast_type)]
     subprocess.check_call(cmd)
 
-
 def blast_against_single(blast_in, ref, blast_type):
     cmd = ["blastall",
            "-p", "blastn",
@@ -156,6 +164,22 @@ def blast_against_single(blast_in, ref, blast_type):
            "-v", "2000",
            "-a", "2"]
     subprocess.check_call(cmd)
+
+def check_tree_and_reads(combined, tree):
+    combined_ids = []
+    tree_ids = []
+    for record in SeqIO.parse(open(combined), "fasta"):
+        combined_ids.append(record.id)
+    mytree = Phylo.read(tree, 'newick')
+    for clade in mytree.find_clades():
+        if clade.name:
+            tree_ids.append(clade.name)
+    combined_length = len(combined_ids)        
+    if len(set(combined_ids).intersection(tree_ids)) == int(combined_length):
+        pass
+    else:
+        print "tree names and combined file do not match! exiting"
+        sys.exit()
 
 def filter_blast_report(blast_file, frag_length):
     """only return sequences that show a complete
