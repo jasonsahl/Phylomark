@@ -145,6 +145,10 @@ def blast_against_single(blast_in, ref, blast_type):
            "-e", "0.01",
            "-o", "blast_one.out",
            "-m", str(blast_type),
+           "-q", "-4",
+           "-r", "5",
+           "-b", "2000",
+           "-v", "2000",
            "-a", "2"]
     subprocess.check_call(cmd)
 
@@ -176,7 +180,14 @@ def get_reduced_seqs_by_id(fasta_file, names_file):
             SeqIO.write([record], open(f_out, "w"), "fasta")
     return fastadir
 
-def tree_loop(fastadir, combined, tree, parallel_workers, run_r):
+def get_ref_numbers(combined):
+    records = []
+    for record in SeqIO.parse(open(combined), "fasta"):
+        records.append(record.id)
+    return len(records)
+        
+
+def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
     def _temp_name(t, f):
         return t + '_' + f
     
@@ -208,25 +219,27 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r):
                                                   _temp_name(tn, "combined.tree")),
                               shell=True)
         # hashrf doesn't return 0 on success unfortunately
-        subprocess.call("hashrf %s 2 -p list -o %s > /dev/null 2>&1" % (_temp_name(tn, "combined.tree"),
+        num_queries = get_ref_numbers("%s" (_temp_name(tn, "seqs_aligned.fas")))
+        if int(num_queries) == int(num_refs):
+            subprocess.call("hashrf %s 2 -p list -o %s > /dev/null 2>&1" % (_temp_name(tn, "combined.tree"),
                                                                         _temp_name(tn, "result.rf")),
-                        shell=True)
+                            shell=True)
 
-        thread_id = id(threading.current_thread())
-        thread_distance_file = str(thread_id) + '_distance.txt'
-        parse_hashrf_file(_temp_name(tn, "result.rf"), thread_distance_file)
-        thread_name_file = str(thread_id) + '_name.txt'
-        write_strip_name(f, thread_name_file)
-        subprocess.check_call(["rm",
-                              _temp_name(tn, "blast.out"),
-                              _temp_name(tn, "blast_parsed.txt"),
-                              _temp_name(tn, "blast_unique.parsed.txt"),
-                              _temp_name(tn, "seqs_in.fas"),
-                              _temp_name(tn, "seqs_aligned.fas"),
-                              _temp_name(tn, "tmp.tree"),
-                              _temp_name(tn, "combined.tree"),
-                              _temp_name(tn, "result.rf")])
-        return (thread_distance_file, thread_name_file)
+            thread_id = id(threading.current_thread())
+            thread_distance_file = str(thread_id) + '_distance.txt'
+            parse_hashrf_file(_temp_name(tn, "result.rf"), thread_distance_file)
+            thread_name_file = str(thread_id) + '_name.txt'
+            write_strip_name(f, thread_name_file)
+            subprocess.check_call(["rm",
+                                  _temp_name(tn, "blast.out"),
+                                  _temp_name(tn, "blast_parsed.txt"),
+                                  _temp_name(tn, "blast_unique.parsed.txt"),
+                                  _temp_name(tn, "seqs_in.fas"),
+                                  _temp_name(tn, "seqs_aligned.fas"),
+                                  _temp_name(tn, "tmp.tree"),
+                                  _temp_name(tn, "combined.tree"),
+                                  _temp_name(tn, "result.rf")])
+            return (thread_distance_file, thread_name_file)
 
     files = os.listdir(fastadir)
     files_and_temp_names = [(str(idx), os.path.join(fastadir, f))

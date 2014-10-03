@@ -69,9 +69,10 @@ def main(alignment, mask, ref, combined, tree, step_size, frag_length, keep_leng
     blast_against_single("query_sequences.fas", ref, 8)
     filter_blast_report("blast_one.out", frag_length)
     format_blast_database(combined)
+    num_refs = get_ref_numbers(combined)
     fastadir = get_reduced_seqs_by_id("query_sequences.fas", "continuous_seq_names.txt") 
     logging.logPrint("Starting the loop")
-    tree_loop(fastadir, combined, tree, parallel_workers, run_r)
+    tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs)
     logging.logPrint("Loop finished")
     subprocess.check_call("awk '{print $1}' all_distances.txt > names.txt", shell=True) #should I sort?
     pull_line("names.txt", "summed_qualities.txt", "reduced_quals.txt")
