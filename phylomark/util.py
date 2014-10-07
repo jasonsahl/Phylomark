@@ -220,7 +220,7 @@ def get_ref_numbers(combined):
 def run_dendropy(tmp_tree, wga_tree, outfile):
     out = open(outfile, "w")
     tree_one = dendropy.Tree.get_from_path(wga_tree,schema="newick",preserve_underscores=True)
-    tree_two = dendropy.Tree.get_from_path(tmp_tree,schema="newick",preserve_underscores=True, taxon_set=tree_full.taxon_set)
+    tree_two = dendropy.Tree.get_from_path(tmp_tree,schema="newick",preserve_underscores=True, taxon_set=tree_one.taxon_set)
     RFs = dendropy.treecalc.robinson_foulds_distance(tree_one, tree_two)
     print >> out, RFs
 
@@ -257,29 +257,29 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
         #                                          _temp_name(tn, "combined.tree")),
         #                      shell=True)
         # hashrf doesn't return 0 on success unfortunately
-        num_queries = get_ref_numbers("%s" % (_temp_name(tn, "seqs_aligned.fas")))
-        if int(num_queries) == int(num_refs):
-            subprocess.call("hashrf %s 2 -p list -o %s > /dev/null 2>&1" % (_temp_name(tn, "combined.tree"),
-                                                                        _temp_name(tn, "result.rf")),
-                            shell=True)
+        #num_queries = get_ref_numbers("%s" % (_temp_name(tn, "seqs_aligned.fas")))
+        #if int(num_queries) == int(num_refs):
+        #    subprocess.call("hashrf %s 2 -p list -o %s > /dev/null 2>&1" % (_temp_name(tn, "combined.tree"),
+        #                                                                        _temp_name(tn, "result.rf")),
+        #                    shell=True)
 
-            thread_id = id(threading.current_thread())
-            thread_distance_file = str(thread_id) + '_distance.txt'
+        thread_id = id(threading.current_thread())
+        thread_distance_file = str(thread_id) + '_distance.txt'
             #parse_hashrf_file(_temp_name(tn, "result.rf"), thread_distance_file)
-            parse_RF_file(_temp_name(tn, "tmp.rf"), thread_distance_file)
+        parse_rf_file(_temp_name(tn, "tmp.rf"), thread_distance_file)
             #parse_RF_file(
-            thread_name_file = str(thread_id) + '_name.txt'
-            write_strip_name(f, thread_name_file)
-            subprocess.check_call(["rm",
-                                  _temp_name(tn, "blast.out"),
-                                  _temp_name(tn, "blast_parsed.txt"),
-                                  _temp_name(tn, "blast_unique.parsed.txt"),
-                                  _temp_name(tn, "seqs_in.fas"),
-                                  _temp_name(tn, "seqs_aligned.fas"),
-                                  _temp_name(tn, "tmp.tree"),
-                                  _temp_name(tn, "combined.tree")])
-                                  #_temp_name(tn, "result.rf")])
-            return (thread_distance_file, thread_name_file)
+        thread_name_file = str(thread_id) + '_name.txt'
+        write_strip_name(f, thread_name_file)
+        subprocess.check_call(["rm",
+                              _temp_name(tn, "blast.out"),
+                              _temp_name(tn, "blast_parsed.txt"),
+                              _temp_name(tn, "blast_unique.parsed.txt"),
+                              _temp_name(tn, "seqs_in.fas"),
+                              _temp_name(tn, "seqs_aligned.fas"),
+                              _temp_name(tn, "tmp.tree"),
+                              _temp_name(tn, "tmp.RF")])
+                              #_temp_name(tn, "result.rf")])
+        return (thread_distance_file, thread_name_file)
 
     files = os.listdir(fastadir)
     files_and_temp_names = [(str(idx), os.path.join(fastadir, f))
