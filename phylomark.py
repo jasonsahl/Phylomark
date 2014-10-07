@@ -40,7 +40,7 @@ def main(alignment, mask, ref, combined, tree, step_size, frag_length, keep_leng
         except:
             raise TypeError("R needs to be in your path!")
             sys.exit()
-    dependencies = ['mothur','muscle','FastTree','hashrf']
+    dependencies = ['mothur','muscle','FastTree']
     for dependency in dependencies:
         ra = subprocess.call(['which', '%s' % dependency])
         if ra == 0:

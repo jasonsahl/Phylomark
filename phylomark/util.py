@@ -252,22 +252,11 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
                                                                              _temp_name(tn, "tmp.tree")),
                               shell=True)
         value = run_dendropy("%s" % (_temp_name(tn, "tmp.tree")), tree, "%s" % (_temp_name(tn, "tmp.RF")))
-        #subprocess.check_call("cat %s %s > %s" % (_temp_name(tn, "tmp.tree"),
-        #                                          tree,
-        #                                          _temp_name(tn, "combined.tree")),
-        #                      shell=True)
-        # hashrf doesn't return 0 on success unfortunately
         #num_queries = get_ref_numbers("%s" % (_temp_name(tn, "seqs_aligned.fas")))
         #if int(num_queries) == int(num_refs):
-        #    subprocess.call("hashrf %s 2 -p list -o %s > /dev/null 2>&1" % (_temp_name(tn, "combined.tree"),
-        #                                                                        _temp_name(tn, "result.rf")),
-        #                    shell=True)
-
         thread_id = id(threading.current_thread())
         thread_distance_file = str(thread_id) + '_distance.txt'
-            #parse_hashrf_file(_temp_name(tn, "result.rf"), thread_distance_file)
         parse_rf_file(_temp_name(tn, "tmp.rf"), thread_distance_file)
-            #parse_RF_file(
         thread_name_file = str(thread_id) + '_name.txt'
         write_strip_name(f, thread_name_file)
         subprocess.check_call(["rm",
@@ -359,14 +348,6 @@ def parsed_blast_to_seqs(parsed_file, outfile):
         fields = line.split()
         print >> handle, str(fields[0]) + str(fields[2])
         print >> handle, fields[3]
-    handle.close()
-
-def parse_hashrf_file(infile, outfile):
-    handle = open(outfile, "a")
-    for line in open(infile):
-        if "<0,1>" in line:
-            fields = line.split(" ")
-            print >> handle, fields[1],
     handle.close()
 
 def parse_rf_file(infile, outfile):
