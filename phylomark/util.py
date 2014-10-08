@@ -256,7 +256,7 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
         #if int(num_queries) == int(num_refs):
         thread_id = id(threading.current_thread())
         thread_distance_file = str(thread_id) + '_distance.txt'
-        parse_rf_file(_temp_name(tn, "tmp.rf"), thread_distance_file)
+        parse_rf_file(_temp_name(tn, "tmp.RF"), thread_distance_file)
         thread_name_file = str(thread_id) + '_name.txt'
         write_strip_name(f, thread_name_file)
         subprocess.check_call(["rm",
