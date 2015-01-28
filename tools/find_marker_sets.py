@@ -27,7 +27,7 @@ def combine_seqs(dir_path):
     handle = open("combined.seqs", "w")
     for infile in glob.glob(os.path.join(dir_path, '*.fasta')):
         names = get_seq_name(infile)
-        reduced = names.replace('.fas','')
+        reduced = names.replace('.fasta','')
         print >> handle, ">"+str(reduced)
         for record in SeqIO.parse(open(infile), "fasta"):
             print >> handle, record.seq
