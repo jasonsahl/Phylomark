@@ -42,9 +42,11 @@ def run_blast(infile):
             "-d", "combined.seqs",
             "-o", "%s.blast.out" % reduced,
             "-m", "7",
+            "-b", "2000",
+            "-v", "2000",
             "-q", "-4",
             "-r", "5",
-            "-a", "2",
+            "-a", "8",
             "-F", "F"]
     subprocess.check_call(cmd)
 
