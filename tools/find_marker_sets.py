@@ -25,7 +25,7 @@ def split_multi_fasta(fasta_in):
     
 def combine_seqs(dir_path):
     handle = open("combined.seqs", "w")
-    for infile in glob.glob(os.path.join(dir_path, '*.fas')):
+    for infile in glob.glob(os.path.join(dir_path, '*.fasta')):
         names = get_seq_name(infile)
         reduced = names.replace('.fas','')
         print >> handle, ">"+str(reduced)
