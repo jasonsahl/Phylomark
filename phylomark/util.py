@@ -186,7 +186,7 @@ def filter_blast_report(blast_file, frag_length):
     handle = open("continuous_seq_names.txt", "w")
     for line in open(blast_file):
         fields = line.split("\t")
-        if int(fields[3]) >= min_frag_length:
+        if int(fields[3]) >= min_frag_length and float(fields[2]) >= 0.99:
             print >> handle, fields[0]
     handle.close()
 
