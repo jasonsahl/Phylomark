@@ -217,7 +217,8 @@ def run_dendropy(tmp_tree, wga_tree, outfile):
     out = open(outfile, "w")
     tree_one = dendropy.Tree.get_from_path(wga_tree,schema="newick",preserve_underscores=True)
     tree_two = dendropy.Tree.get_from_path(tmp_tree,schema="newick",preserve_underscores=True, taxon_set=tree_one.taxon_set)
-    RFs = dendropy.treecalc.robinson_foulds_distance(tree_one, tree_two)
+    #RFs = dendropy.treecalc.robinson_foulds_distance(tree_one, tree_two)
+    RFs = tree_one.symmetric_difference(tree_two)
     print >> out, RFs
 
 def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
@@ -247,9 +248,8 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
         subprocess.check_call("FastTree -nt -noboot %s > %s 2> /dev/null" % (_temp_name(tn, "seqs_aligned.fas"),
                                                                              _temp_name(tn, "tmp.tree")),
                               shell=True)
-        value = run_dendropy("%s" % (_temp_name(tn, "tmp.tree")), tree, "%s" % (_temp_name(tn, "tmp.RF")))
-        #num_queries = get_ref_numbers("%s" % (_temp_name(tn, "seqs_aligned.fas")))
-        #if int(num_queries) == int(num_refs):
+        #value = run_dendropy("%s" % (_temp_name(tn, "tmp.tree")), tree, "%s" % (_temp_name(tn, "tmp.RF")))
+        run_dendropy("%s" % (_temp_name(tn, "tmp.tree")), tree, "%s" % (_temp_name(tn, "tmp.RF")))
         thread_id = id(threading.current_thread())
         thread_distance_file = str(thread_id) + '_distance.txt'
         parse_rf_file(_temp_name(tn, "tmp.RF"), thread_distance_file)
@@ -263,7 +263,6 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
                               _temp_name(tn, "seqs_aligned.fas"),
                               _temp_name(tn, "tmp.tree"),
                               _temp_name(tn, "tmp.RF")])
-                              #_temp_name(tn, "result.rf")])
         return (thread_distance_file, thread_name_file)
 
     files = os.listdir(fastadir)
