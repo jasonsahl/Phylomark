@@ -143,8 +143,6 @@ def blast_against_reference(blast_in, combined, blast_type, outfile):
            "-d", combined,
            "-o", outfile,
            "-F", "f",
-           "-q", "-4",
-           "-r", "5",
            "-b", "2000",
            "-v", "2000",
            "-m", str(blast_type)]
@@ -159,8 +157,6 @@ def blast_against_single(blast_in, ref, blast_type):
            "-e", "0.01",
            "-o", "blast_one.out",
            "-m", str(blast_type),
-           "-q", "-4",
-           "-r", "5",
            "-b", "2000",
            "-v", "2000",
            "-a", "2"]
@@ -185,8 +181,8 @@ def check_tree_and_reads(combined, tree):
 def filter_blast_report(blast_file, frag_length):
     """only return sequences that show a complete
     blast alignment with reference sequence
-    will accept up to 99% of the frag_length"""
-    min_frag_length = int(0.99 * frag_length)
+    will only accept 100% of the frag_length"""
+    min_frag_length = int(1 * frag_length)
     handle = open("continuous_seq_names.txt", "w")
     for line in open(blast_file):
         fields = line.split("\t")
