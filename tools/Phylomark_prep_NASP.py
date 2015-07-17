@@ -9,6 +9,7 @@ import os
 import sys
 import optparse
 import subprocess
+import re
 
 def test_file(option, opt_str, value, parser):
     try:
@@ -63,21 +64,50 @@ def matrix_to_fasta(matrix_in, last):
     out_fasta = open("nasp_in.fasta", "w")
     for line in open(matrix_in):
         fields = line.split("\t")
-        reduced.append(fields[1:last])
+        #reduced.append(fields[1:last])
+        new_fields = [ ]
+        for field in fields[1:last]:
+            if field == "X":
+                gap_field = re.sub(r"X","-", field)
+            elif field == "N":
+                gap_field = re.sub(r"N","-", field)
+            elif field == ".":
+                gap_field = re.sub(r"N","-", field)
+            else:
+                gap_field = field
+            new_fields.append(gap_field)
+        reduced.append(new_fields)
     test=map(list, zip(*reduced))
     for x in test:
         out_fasta.write(">"+str(x[0])+"\n")
         out_fasta.write("".join(x[1:])+"\n")
     out_fasta.close()
-                
+
+def process_fastas(directory, out_fasta):
+    """make the combined fasta file"""
+    fout = open(out_fasta, "w")
+    for infile in glob.glob(os.path.join(directory, '*.fas')):
+        names = get_seq_name(infile)
+        reduced = names.rstrip('.fas')
+        fout.write('>' + str(reduced) + '\n')
+        for record in SeqIO.parse(open(infile), "fasta"):
+            fout.write(str(record.seq) + '\n')
+        fout.write('\n')
+    fout.close()
+    
 def main(nasp_matrix, directory, reference):
     last = get_field_index(nasp_matrix)
     filter_matrix(nasp_matrix)
     matrix_to_fasta("nasp_matrix_dashes.txt", last)
+    #Alignment file is called nasp_in.filter.fasta
+    #Mask file is called mask_in.txt
     subprocess.check_call(['mothur',
                            '#filter.seqs(fasta="nasp_in.fasta", vertical=F, trump=-)' % final_fasta])
     subprocess.check_call(['mothur',
-                           '#filter.seqs(fasta=nasp_in.filtered.fasta, soft=100, vertical=F)' % final_filter_fasta])
+                           '#filter.seqs(fasta="nasp_in.filter.fasta", soft=100, vertical=F)' % final_filter_fasta])
+    subprocess.check_call('sed "s/[^1]/0/g" nasp_in.filter | sed "s/0/2/g" | sed "s/1/0/g" | sed "s/2/1/g" > mask_in.txt', shell=True)
+    process_fastas(directory, "combined.fasta")   
+    
     
 if __name__ == "__main__":
     usage="usage: %prog [options]"

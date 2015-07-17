@@ -107,7 +107,7 @@ def filter_lines_by_value(filter_in, keep_length):
     handle = open("seq_names_over_value.txt", "w")
     for line in open(filter_in):
         fields = line.split(" ")
-        if int(fields[1]) >= keep_length: 
+        if int(fields[1]) >= keep_length:
             print >> handle, line,
     handle.close()
 
@@ -136,30 +136,23 @@ def format_blast_database(ref_file):
            "-p", "F"]
     subprocess.check_call(cmd)
 
-def blast_against_reference(blast_in, combined, blast_type, outfile):
-    cmd = ["blastall",
-           "-p", "blastn",
-           "-i", blast_in,
-           "-d", combined,
-           "-o", outfile,
-           "-F", "f",
-           "-b", "2000",
-           "-v", "2000",
-           "-m", str(blast_type)]
-    subprocess.check_call(cmd)
+def blast_against_reference(blast_in, combined, outfile):
+    try:
+        #print 'blastn -query %s -db %s -out %s -dust no -num_alignments 2000 -outfmt "7 std sseq"' % (blast_in,combined,outfile)
+        os.system('blastn -query %s -db %s -out %s -dust no -num_alignments 2000 -outfmt "7 std sseq"' % (blast_in,combined,outfile))
+    except:
+        print "blast problem!"
 
 def blast_against_single(blast_in, ref, blast_type):
-    cmd = ["blastall",
-           "-p", "blastn",
-           "-i", blast_in,
-           "-d", ref,
-           "-F", "f",
-           "-e", "0.01",
-           "-o", "blast_one.out",
-           "-m", str(blast_type),
-           "-b", "2000",
-           "-v", "2000",
-           "-a", "2"]
+    cmd = ["blastn",
+           "-query", blast_in,
+           "-db", ref,
+           "-dust", "no",
+           "-evalue", "0.1",
+           "-out", "blast_one.out",
+           "-outfmt", str(blast_type),
+           "-num_alignments", "2000",
+           "-num_threads", "2"]
     subprocess.check_call(cmd)
 
 def check_tree_and_reads(combined, tree):
@@ -171,7 +164,7 @@ def check_tree_and_reads(combined, tree):
     for clade in mytree.find_clades():
         if clade.name:
             tree_ids.append(clade.name)
-    combined_length = len(combined_ids)        
+    combined_length = len(combined_ids)
     if len(set(combined_ids).intersection(tree_ids)) == int(combined_length):
         pass
     else:
@@ -190,12 +183,6 @@ def filter_blast_report(blast_file, frag_length):
             print >> handle, fields[0]
     handle.close()
 
-def format_blast_database(ref_file):
-    cmd = ["formatdb",
-           "-i", ref_file,
-           "-p", "F"]
-    subprocess.check_call(cmd)
-
 def get_reduced_seqs_by_id(fasta_file, names_file):
     """retrieves sequences based on fasta header
     then splits the sequences into a temporary folder"""
@@ -211,7 +198,7 @@ def get_ref_numbers(combined):
     for record in SeqIO.parse(open(combined), "fasta"):
         records.append(record.id)
     return len(records)
-        
+
 
 def run_dendropy(tmp_tree, wga_tree, outfile):
     out = open(outfile, "w")
@@ -224,20 +211,20 @@ def run_dendropy(tmp_tree, wga_tree, outfile):
 def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
     def _temp_name(t, f):
         return t + '_' + f
-    
+
     def _perform_workflow(data):
         tn, f = data
         logging.debugPrint(lambda : "Processing file: %s" % f)
-        blast_against_reference(f, combined, 7, _temp_name(tn, "blast.out"))
-        parse_blast_xml_report(_temp_name(tn, "blast.out"), _temp_name(tn, "blast_parsed.txt"))
-        subprocess.check_call("sort -u -k 3,3 %s > %s" % (_temp_name(tn, "blast_parsed.txt"),
+        #print tn, f
+        blast_against_reference(f, combined, _temp_name(tn, "blast_parsed.txt"))
+        subprocess.check_call("sort -u -k 2,2 %s > %s" % (_temp_name(tn, "blast_parsed.txt"),
                                                           _temp_name(tn, "blast_unique.parsed.txt")),
                               shell=True)
         parsed_blast_to_seqs(_temp_name(tn, "blast_unique.parsed.txt"), _temp_name(tn, "seqs_in.fas"))
         subprocess.check_call("muscle -in %s -out %s > /dev/null 2>&1" % (_temp_name(tn, "seqs_in.fas"),
                                                                           _temp_name(tn, "seqs_aligned.fas")),
                               shell=True)
-        if "T" == run_r: 
+        if "T" == run_r:
             name = get_seq_name(f)
             subprocess.check_call("cat snps.r | R --slave --args %s %s.table %s.pdf 2> /dev/null" % (_temp_name(tn, "seqs_aligned.fas"), name, name),
         					  shell=True)
@@ -256,13 +243,12 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
         thread_name_file = str(thread_id) + '_name.txt'
         write_strip_name(f, thread_name_file)
         subprocess.check_call(["rm",
-                              _temp_name(tn, "blast.out"),
-                              _temp_name(tn, "blast_parsed.txt"),
-                              _temp_name(tn, "blast_unique.parsed.txt"),
-                              _temp_name(tn, "seqs_in.fas"),
-                              _temp_name(tn, "seqs_aligned.fas"),
-                              _temp_name(tn, "tmp.tree"),
-                              _temp_name(tn, "tmp.RF")])
+                               _temp_name(tn, "blast_parsed.txt"),
+                               _temp_name(tn, "blast_unique.parsed.txt"),
+                               _temp_name(tn, "seqs_in.fas"),
+                               _temp_name(tn, "seqs_aligned.fas"),
+                               _temp_name(tn, "tmp.tree"),
+                               _temp_name(tn, "tmp.RF")])
         return (thread_distance_file, thread_name_file)
 
     files = os.listdir(fastadir)
@@ -274,7 +260,7 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
                               num_workers=parallel_workers))
 
     subprocess.call("rm distance.txt name.txt", shell=True, stderr=open(os.devnull, 'w'))
-    
+
     for files in func.chunk(5, results):
         distances = [d for d, _ in files]
         names = [n for _, n in files]
@@ -324,8 +310,8 @@ def parse_blast_xml_report(blast_file, outfile):
     from a blast file with xml output"""
     result_handle = open(blast_file)
     blast_records = NCBIXML.parse(result_handle)
-    blast_record = blast_records.next()    
-    handle = open(outfile, "w") 
+    blast_record = blast_records.next()
+    handle = open(outfile, "w")
     for alignment in blast_record.alignments:
          for hsp in alignment.hsps:
              test = Seq(hsp.sbjct)
@@ -340,9 +326,12 @@ def parsed_blast_to_seqs(parsed_file, outfile):
     infile = open(parsed_file, "rU")
     handle = open(outfile, "w")
     for line in infile:
-        fields = line.split()
-        print >> handle, str(fields[0]) + str(fields[2])
-        print >> handle, fields[3]
+        if line.startswith("#"):
+            pass
+        else:
+            fields = line.split()
+            print >> handle, ">"+str(fields[1])
+            print >> handle, fields[12]
     handle.close()
 
 def parse_rf_file(infile, outfile):
@@ -356,4 +345,3 @@ def write_strip_name(filename, outfile):
     filename = os.path.splitext(os.path.basename(filename))[0]
     print >> handle, filename
     handle.close()
-

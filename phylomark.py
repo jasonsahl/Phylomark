@@ -35,12 +35,14 @@ def main(alignment, mask, ref, combined, tree, step_size, frag_length, keep_leng
     else:
         pass
     if "T" in run_r:
-        try:
-            suprocess.call(['R'])
-        except:
-            raise TypeError("R needs to be in your path!")
+        rb = suprocess.call(['which', 'R'])
+        if rb == 0:
+            pass
+        else:
+            print "R is not in your path, but needs to be!"
             sys.exit()
-    dependencies = ['mothur','muscle','FastTree']
+    dependencies = ['mothur','muscle','FastTree','blastn','makeblastdb']
+    logging.logPrint("Checking the path of dependencies")
     for dependency in dependencies:
         ra = subprocess.call(['which', '%s' % dependency])
         if ra == 0:
@@ -48,8 +50,9 @@ def main(alignment, mask, ref, combined, tree, step_size, frag_length, keep_leng
         else:
             print "%s is not in your path, but needs to be!" % dependency
             sys.exit()
+    logging.logPrint("Prepping sequences")
     check_tree_and_reads(combined, tree)
-    reads = split_sequence_by_window(alignment, step_size, frag_length) 
+    reads = split_sequence_by_window(alignment, step_size, frag_length)
     write_sequences(reads)
     qual_reads = split_quality_values(mask, step_size, frag_length)
     write_qualities(qual_reads)
@@ -57,13 +60,15 @@ def main(alignment, mask, ref, combined, tree, step_size, frag_length, keep_leng
     sum_qual_reads("padded_quals.txt")
     filter_lines_by_value("summed_qualities.txt", keep_length)
     get_seqs_by_id("seqs_shredded.txt", "seq_names_over_value.txt", "query_sequences.fas")
-    format_blast_database(ref)
+    #format_blast_database(ref)
+    os.system("makeblastdb -in %s -dbtype nucl > /dev/null 2>&1" % ref)
     logging.logPrint("Blasting to find contiguous sequences")
-    blast_against_single("query_sequences.fas", ref, 8)
+    blast_against_single("query_sequences.fas", ref, "6")
     filter_blast_report("blast_one.out", frag_length)
-    format_blast_database(combined)
+    #format_blast_database(combined)
+    os.system("makeblastdb -in %s -dbtype nucl > /dev/null 2>&1" % combined)
     num_refs = get_ref_numbers(combined)
-    fastadir = get_reduced_seqs_by_id("query_sequences.fas", "continuous_seq_names.txt") 
+    fastadir = get_reduced_seqs_by_id("query_sequences.fas", "continuous_seq_names.txt")
     logging.logPrint("Starting the loop")
     tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs)
     logging.logPrint("Loop finished")
@@ -72,7 +77,7 @@ def main(alignment, mask, ref, combined, tree, step_size, frag_length, keep_leng
     merge_files_by_column(0, "all_distances.txt", "summed_qualities.txt", "results.txt")
     logging.logPrint("Cleaning up")
     try:
-        subprocess.check_call("rm quals_shredded.txt padded_quals.txt blast* continuous* distance.txt *.log name.txt seq_names_over_value.txt", shell=True)
+        subprocess.check_call("rm reduced_quals.txt summed_qualities.txt quals_shredded.txt padded_quals.txt blast* continuous* distance.txt name.txt seq_names_over_value.txt", shell=True)
     except:
         sys.exc_clear()
     cleanup_tmpdirs(fastadir)
@@ -113,9 +118,9 @@ if __name__ == "__main__":
     parser.add_option("", "--debug", dest="debug",
                       help="Turn debug statements on",
                       action="store_true", default=False)
-    
+
     options, args = parser.parse_args()
-    
+
     mandatories = ["alignment", "mask", "ref", "combined", "tree"]
     for m in mandatories:
         if not getattr(options, m, None):
@@ -124,7 +129,6 @@ if __name__ == "__main__":
             exit(-1)
 
     logging.DEBUG = options.debug
-            
-    main(options.alignment, options.mask, options.ref, options.combined, options.tree, options.step_size, 
-         options.frag_length, options.keep_length, options.parallel_workers, options.run_r)
 
+    main(options.alignment, options.mask, options.ref, options.combined, options.tree, options.step_size,
+         options.frag_length, options.keep_length, options.parallel_workers, options.run_r)
