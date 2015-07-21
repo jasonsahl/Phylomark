@@ -279,7 +279,6 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
         lengths = []
         for value in files:
             if value:
-                print value
                 distances.append(value[0])
                 names.append(value[1])
                 polys.append(value[2])
