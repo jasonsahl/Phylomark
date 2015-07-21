@@ -206,11 +206,12 @@ def get_ref_numbers(combined):
         records.append(record.id)
     return len(records)
 
-def get_contig_length(in_fasta):
+def get_contig_length(in_fasta, outfile):
+    my_out = open(outfile, "w")
     length = []
     for record in SeqIO.parse(open(in_fasta, "U"), "fasta"):
        length.append(len(record.seq))
-    return length
+    my_out.write("\n".join(length))
 
 def run_dendropy(tmp_tree, wga_tree, outfile):
     out = open(outfile, "w")
