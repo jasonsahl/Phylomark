@@ -44,11 +44,11 @@ class Increments:
 record_count_1 = Increments(1, 1)
 record_count_2 = Increments(1, 1)
 
-def paste_files(name_file, distance_file, all_distance_file):
+def paste_files(name_file, distance_file, poly_file, all_distance_file):
     handle = open(all_distance_file, "w")
     output = []
     distance_file_lines = open(distance_file, "rU").readlines()
-    for lines in zip(open(name_file, "rU"), open(distance_file, "rU")):
+    for lines in zip(open(name_file, "rU"), open(distance_file, "rU"), open(poly_file, "rU")):
         handle.write("\t".join([s.strip() for s in lines]) + "\n")
     handle.close()
 
@@ -298,7 +298,7 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
         subprocess.check_call("rm %s" % " ".join(distances), shell=True)
         subprocess.check_call("rm %s" % " ".join(names), shell=True)
         subprocess.check_call("rm %s" % " ".join(polys), shell=True)
-    paste_files("name.txt", "distance.txt", "all_distances.txt")
+    paste_files("name.txt", "distance.txt", "polys.txt", "all_distances.txt")
 
 def pull_line(names_in, quality_in, out_file):
     handle = open(out_file, "w")
