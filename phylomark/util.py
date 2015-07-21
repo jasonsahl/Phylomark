@@ -280,10 +280,17 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
     subprocess.call("rm distance.txt name.txt", shell=True, stderr=open(os.devnull, 'w'))
 
     for files in func.chunk(5, results):
-        print files
-        distances = [d for d, _ in files]
-        names = [n for _, n in files]
-        polys = [p for _, p in files]
+        #print files
+        distances = []
+        names = []
+        polys = []
+        for value in files:
+        #distances = [d for d, _ in files]
+            distances.append(files[0])
+            names.append(files[1])
+            polys.append(files[2])
+        #names = [n for _, n in files]
+        #polys = [p for _, p in files]
         subprocess.check_call("cat %s >> distance.txt" % " ".join(distances), shell=True)
         subprocess.check_call("cat %s >> name.txt" % " ".join(names), shell=True)
         subprocess.check_call("cat %s >> polys.txt" % " ".join(polys), shell=True)
