@@ -100,7 +100,7 @@ def sum_qual_reads(input_file, output_file):
     padded_qual_lines = open(input_file, "rU")
     for line in padded_qual_lines.xreadlines():
         sum_values = sum([int(s) for s in line.split()])
-        print >> handle, record_count_2.next(), sum_values
+        print >> handle, sum_values
     handle.close()
 
 def filter_lines_by_value(filter_in, keep_length):
