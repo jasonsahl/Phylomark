@@ -66,7 +66,7 @@ def main(alignment, mask, ref, combined, tree, step_size, frag_length, keep_leng
     #filter_blast_report("blast_one.out", frag_length)
     #os.system("makeblastdb -in %s -dbtype nucl > /dev/null 2>&1" % combined)
     os.system("makeblastdb -in %s -dbtype nucl > /dev/null 2>&1" % alignment)
-    #num_refs = get_ref_numbers(combined)
+    num_refs = get_ref_numbers(combined)
     #fastadir = get_reduced_seqs_by_id("query_sequences.fas", "continuous_seq_names.txt")
     fastadir = split_seqs(alignment)
     logging.logPrint("Starting the loop")
