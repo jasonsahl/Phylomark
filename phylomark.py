@@ -77,12 +77,12 @@ def main(alignment, mask, ref, combined, tree, step_size, frag_length, keep_leng
     #merge_files_by_column(0, "all_distances.txt", "summed_qualities.txt", "results.txt")
     #os.system("cp ")
     outfile = open("tmp.txt", "w")
-    print >> outfile, "sequence\tRF\t#polymorphisms"
+    print >> outfile, "sequence\tRF\t#polymorphisms\tcontig_length"
     outfile.close()
     os.system("cat tmp.txt all_distances.txt > results.txt")
     logging.logPrint("Cleaning up")
     try:
-        subprocess.check_call("rm distance.txt name.txt polys.txt tmp.txt all_distances.txt mothur*", shell=True)
+        subprocess.check_call("rm length.txt distance.txt name.txt polys.txt tmp.txt all_distances.txt mothur*", shell=True)
     except:
         sys.exc_clear()
     cleanup_tmpdirs(fastadir)
