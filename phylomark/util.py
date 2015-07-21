@@ -214,10 +214,6 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
         if os.path.isfile(_temp_name(tn, "seqs_aligned.fas")):
             pass
         else:
-            subprocess.check_call(["rm",
-                                   _temp_name(tn, "blast_parsed.txt"),
-                                   _temp_name(tn, "blast_unique.parsed.txt"),
-                                   _temp_name(tn, "seqs_in.fas")])
             break
         subprocess.call(['mothur',
                                '#filter.seqs(fasta=%s, soft=100, vertical=F)' % _temp_name(tn, "seqs_aligned.fas")], stdout=subprocess.PIPE)
