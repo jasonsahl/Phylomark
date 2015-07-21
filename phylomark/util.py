@@ -265,7 +265,8 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
                                _temp_name(tn, "tmp.RF"),
                                _temp_name(tn, "mask.txt"),
                                _temp_name(tn, "padded.txt"),
-                               _temp_name(tn, "polys.txt")])
+                               _temp_name(tn, "polys.txt"),
+                               _temp_name(tn, "seqs_aligned.filter")])
         return (thread_distance_file, thread_name_file, polys_name_file)
 
     files = os.listdir(fastadir)
@@ -277,7 +278,7 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
                               num_workers=parallel_workers))
 
     #I do this to make sure and remove any old files that are setting around
-    subprocess.call("rm distance.txt name.txt", shell=True, stderr=open(os.devnull, 'w'))
+    subprocess.call("rm distance.txt name.txt polys.txt", shell=True, stderr=open(os.devnull, 'w'))
 
     for files in func.chunk(5, results):
         #print files
