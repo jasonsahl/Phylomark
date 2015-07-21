@@ -85,9 +85,9 @@ def write_qualities(qual_reads):
         print >> handle, read
     handle.close()
 
-def split_read(input_file):
+def split_read(input_file, output_file):
     """insert gaps into quality files - needed to put into array"""
-    handle = open("padded_quals.txt", "w")
+    handle = open(output_file, "w")
     qual_lines = open(input_file, "rW")
     for line in qual_lines:
         line = line.strip()
