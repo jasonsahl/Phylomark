@@ -231,7 +231,7 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
         subprocess.check_call("muscle -in %s -out %s > /dev/null 2>&1" % (_temp_name(tn, "seqs_in.fas"),
                                                                           _temp_name(tn, "seqs_aligned.fas")),
                               shell=True)
-        subprocess.check_call('mothur #filter.seqs(fasta=%s, soft=100, vertical=F)' % _temp_name(tn, "seqs_aligned.fas"), shell=True)
+        subprocess.check_call("mothur #filter.seqs(fasta=%s, soft=100, vertical=F)" % _temp_name(tn, "seqs_aligned.fas"), shell=True)
         subprocess.check_call('sed "s/[^1]/0/g" %s | sed "s/0/2/g" | sed "s/1/0/g" | sed "s/2/1/g" > %s' % (_temp_name(tn, "seqs_aligned.filter"),
                                                                                                             _temp_name(tn, "mask.txt")), shell=True)
         split_read(_temp_name(tn, "mask.txt"),_temp_name(tn, "padded.txt"))
