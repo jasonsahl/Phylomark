@@ -211,7 +211,7 @@ def get_contig_length(in_fasta, outfile):
     length = []
     for record in SeqIO.parse(open(in_fasta, "U"), "fasta"):
        length.append(str(len(record.seq)))
-    my_out.write("".join(length))
+    my_out.write("".join(length)+"\n")
 
 def run_dendropy(tmp_tree, wga_tree, outfile):
     out = open(outfile, "w")
