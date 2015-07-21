@@ -264,7 +264,8 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
                                _temp_name(tn, "tmp.tree"),
                                _temp_name(tn, "tmp.RF"),
                                _temp_name(tn, "mask.txt"),
-                               _temp_name(tn, "padded.txt")])
+                               _temp_name(tn, "padded.txt"),
+                               _temp_name(tn, "polys.txt")])
         return (thread_distance_file, thread_name_file)
 
     files = os.listdir(fastadir)
@@ -280,10 +281,13 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
     for files in func.chunk(5, results):
         distances = [d for d, _ in files]
         names = [n for _, n in files]
+        polys = [p for _, p in files]
         subprocess.check_call("cat %s >> distance.txt" % " ".join(distances), shell=True)
         subprocess.check_call("cat %s >> name.txt" % " ".join(names), shell=True)
+        subprocess.check_call("cat %s >> polys.txt" % " ".join(polys), shell=True)
         subprocess.check_call("rm %s" % " ".join(distances), shell=True)
         subprocess.check_call("rm %s" % " ".join(names), shell=True)
+        subprocess.check_call("rm %s" % " ".join(polys), shell=True)
     paste_files("name.txt", "distance.txt", "all_distances.txt")
 
 def pull_line(names_in, quality_in, out_file):
