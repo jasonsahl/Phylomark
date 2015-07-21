@@ -212,51 +212,53 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
         #                                                                  _temp_name(tn, "seqs_aligned.fas")),
         #                      shell=True)
         if os.path.isfile(_temp_name(tn, "seqs_aligned.fas")):
-            pass
+            subprocess.call(['mothur',
+                                   '#filter.seqs(fasta=%s, soft=100, vertical=F)' % _temp_name(tn, "seqs_aligned.fas")], stdout=subprocess.PIPE)
+            subprocess.check_call('sed "s/[^1]/0/g" %s | sed "s/0/2/g" | sed "s/1/0/g" | sed "s/2/1/g" > %s' % (_temp_name(tn, "seqs_aligned.filter"),
+                                                                                                                _temp_name(tn, "mask.txt")), shell=True)
+            split_read(_temp_name(tn, "mask.txt"),_temp_name(tn, "padded.txt"))
+            sum_qual_reads(_temp_name(tn, "padded.txt"), _temp_name(tn,"polys.txt"))
+            if "T" == run_r:
+                name = get_seq_name(f)
+                subprocess.check_call("cat snps.r | R --slave --args %s %s.table %s.pdf 2> /dev/null" % (_temp_name(tn, "seqs_aligned.fas"), name, name),
+        					      shell=True)
+                os.system("mv %s.table ./R_output/%s.table.txt" % (name, name))
+                os.system("mv %s.pdf ./R_output/%s.plots.pdf" % (name, name))
+            else:
+                pass
+            subprocess.check_call("FastTree -nt -noboot %s > %s 2> /dev/null" % (_temp_name(tn, "seqs_aligned.fas"),
+                                                                                 _temp_name(tn, "tmp.tree")),
+                                  shell=True)
+            run_dendropy("%s" % (_temp_name(tn, "tmp.tree")), tree, "%s" % (_temp_name(tn, "tmp.RF")))
+            get_contig_length(f, _temp_name(tn, "length.txt"))
+            thread_id = id(threading.current_thread())
+            thread_distance_file = str(thread_id) + '_distance.txt'
+            parse_rf_file(_temp_name(tn, "tmp.RF"), thread_distance_file)
+            thread_name_file = str(thread_id) + '_name.txt'
+            write_strip_name(f, thread_name_file)
+            polys_name_file = str(thread_id) + '_polys.txt'
+            parse_poly_file(_temp_name(tn, "polys.txt"), polys_name_file)
+            length_name_file = str(thread_id) + '_length.txt'
+            parse_poly_file(_temp_name(tn, "length.txt"), length_name_file)
+            subprocess.check_call(["rm",
+                                   _temp_name(tn, "blast_parsed.txt"),
+                                   _temp_name(tn, "blast_unique.parsed.txt"),
+                                   _temp_name(tn, "seqs_in.fas"),
+                                   _temp_name(tn, "seqs_aligned.fas"),
+                                   _temp_name(tn, "tmp.tree"),
+                                   _temp_name(tn, "tmp.RF"),
+                                   _temp_name(tn, "mask.txt"),
+                                   _temp_name(tn, "padded.txt"),
+                                   _temp_name(tn, "polys.txt"),
+                                   _temp_name(tn, "seqs_aligned.filter"),
+                                   _temp_name(tn, "length.txt"),
+                                   _temp_name(tn, "seqs_aligned.filter.fasta")])
+            return (thread_distance_file, thread_name_file, polys_name_file, length_name_file)
         else:
-            break
-        subprocess.call(['mothur',
-                               '#filter.seqs(fasta=%s, soft=100, vertical=F)' % _temp_name(tn, "seqs_aligned.fas")], stdout=subprocess.PIPE)
-        subprocess.check_call('sed "s/[^1]/0/g" %s | sed "s/0/2/g" | sed "s/1/0/g" | sed "s/2/1/g" > %s' % (_temp_name(tn, "seqs_aligned.filter"),
-                                                                                                            _temp_name(tn, "mask.txt")), shell=True)
-        split_read(_temp_name(tn, "mask.txt"),_temp_name(tn, "padded.txt"))
-        sum_qual_reads(_temp_name(tn, "padded.txt"), _temp_name(tn,"polys.txt"))
-        if "T" == run_r:
-            name = get_seq_name(f)
-            subprocess.check_call("cat snps.r | R --slave --args %s %s.table %s.pdf 2> /dev/null" % (_temp_name(tn, "seqs_aligned.fas"), name, name),
-        					  shell=True)
-            os.system("mv %s.table ./R_output/%s.table.txt" % (name, name))
-            os.system("mv %s.pdf ./R_output/%s.plots.pdf" % (name, name))
-        else:
-            pass
-        subprocess.check_call("FastTree -nt -noboot %s > %s 2> /dev/null" % (_temp_name(tn, "seqs_aligned.fas"),
-                                                                             _temp_name(tn, "tmp.tree")),
-                              shell=True)
-        run_dendropy("%s" % (_temp_name(tn, "tmp.tree")), tree, "%s" % (_temp_name(tn, "tmp.RF")))
-        get_contig_length(f, _temp_name(tn, "length.txt"))
-        thread_id = id(threading.current_thread())
-        thread_distance_file = str(thread_id) + '_distance.txt'
-        parse_rf_file(_temp_name(tn, "tmp.RF"), thread_distance_file)
-        thread_name_file = str(thread_id) + '_name.txt'
-        write_strip_name(f, thread_name_file)
-        polys_name_file = str(thread_id) + '_polys.txt'
-        parse_poly_file(_temp_name(tn, "polys.txt"), polys_name_file)
-        length_name_file = str(thread_id) + '_length.txt'
-        parse_poly_file(_temp_name(tn, "length.txt"), length_name_file)
-        subprocess.check_call(["rm",
-                               _temp_name(tn, "blast_parsed.txt"),
-                               _temp_name(tn, "blast_unique.parsed.txt"),
-                               _temp_name(tn, "seqs_in.fas"),
-                               _temp_name(tn, "seqs_aligned.fas"),
-                               _temp_name(tn, "tmp.tree"),
-                               _temp_name(tn, "tmp.RF"),
-                               _temp_name(tn, "mask.txt"),
-                               _temp_name(tn, "padded.txt"),
-                               _temp_name(tn, "polys.txt"),
-                               _temp_name(tn, "seqs_aligned.filter"),
-                               _temp_name(tn, "length.txt"),
-                               _temp_name(tn, "seqs_aligned.filter.fasta")])
-        return (thread_distance_file, thread_name_file, polys_name_file, length_name_file)
+            subprocess.check_call(["rm",
+                                   _temp_name(tn, "blast_parsed.txt"),
+                                   _temp_name(tn, "blast_unique.parsed.txt"),
+                                   _temp_name(tn, "seqs_in.fas")])
 
     files = os.listdir(fastadir)
     files_and_temp_names = [(str(idx), os.path.join(fastadir, f))
@@ -269,26 +271,27 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
     #I do this to make sure and remove any old files that are setting around
     subprocess.call("rm distance.txt name.txt polys.txt length.txt", shell=True, stderr=open(os.devnull, 'w'))
 
-    for files in func.chunk(5, results):
-        #print files
-        distances = []
-        names = []
-        polys = []
-        lengths = []
-        for value in files:
-            distances.append(value[0])
-            names.append(value[1])
-            polys.append(value[2])
-            lengths.append(value[3])
-        subprocess.check_call("cat %s >> distance.txt" % " ".join(distances), shell=True)
-        subprocess.check_call("cat %s >> name.txt" % " ".join(names), shell=True)
-        subprocess.check_call("cat %s >> polys.txt" % " ".join(polys), shell=True)
-        subprocess.check_call("cat %s >> length.txt" % " ".join(lengths), shell=True)
-        subprocess.check_call("rm %s" % " ".join(distances), shell=True)
-        subprocess.check_call("rm %s" % " ".join(names), shell=True)
-        subprocess.check_call("rm %s" % " ".join(polys), shell=True)
-        subprocess.check_call("rm %s" % " ".join(lengths), shell=True)
-    paste_files("name.txt", "distance.txt", "polys.txt", "length.txt", "all_distances.txt")
+    if results:
+        for files in func.chunk(5, results):
+            #print files
+            distances = []
+            names = []
+            polys = []
+            lengths = []
+            for value in files:
+                distances.append(value[0])
+                names.append(value[1])
+                polys.append(value[2])
+                lengths.append(value[3])
+            subprocess.check_call("cat %s >> distance.txt" % " ".join(distances), shell=True)
+            subprocess.check_call("cat %s >> name.txt" % " ".join(names), shell=True)
+            subprocess.check_call("cat %s >> polys.txt" % " ".join(polys), shell=True)
+            subprocess.check_call("cat %s >> length.txt" % " ".join(lengths), shell=True)
+            subprocess.check_call("rm %s" % " ".join(distances), shell=True)
+            subprocess.check_call("rm %s" % " ".join(names), shell=True)
+            subprocess.check_call("rm %s" % " ".join(polys), shell=True)
+            subprocess.check_call("rm %s" % " ".join(lengths), shell=True)
+        paste_files("name.txt", "distance.txt", "polys.txt", "length.txt", "all_distances.txt")
 
 def pull_line(names_in, quality_in, out_file):
     handle = open(out_file, "w")
