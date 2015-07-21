@@ -121,7 +121,7 @@ if __name__ == "__main__":
 
     options, args = parser.parse_args()
 
-    mandatories = ["alignment", "mask", "ref", "combined", "tree"]
+    mandatories = ["alignment", "ref", "combined", "tree"]
     for m in mandatories:
         if not getattr(options, m, None):
             print "\nMust provide %s.\n" %m
