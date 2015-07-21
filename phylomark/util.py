@@ -183,6 +183,13 @@ def filter_blast_report(blast_file, frag_length):
             print >> handle, fields[0]
     handle.close()
 
+def split_seqs(fasta_file)
+    fastadir = tempfile.mkdtemp()
+    for record in SeqIO.parse(open(fasta_file), "fasta"):
+        f_out = os.path.join(fastadir, record.id + '.fasta')
+        SeqIO.write([record], open(f_out, "w"), "fasta")
+    return fastadir
+
 def get_reduced_seqs_by_id(fasta_file, names_file):
     """retrieves sequences based on fasta header
     then splits the sequences into a temporary folder"""
