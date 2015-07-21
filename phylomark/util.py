@@ -240,6 +240,7 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
             parse_poly_file(_temp_name(tn, "polys.txt"), polys_name_file)
             length_name_file = str(thread_id) + '_length.txt'
             parse_poly_file(_temp_name(tn, "length.txt"), length_name_file)
+            os.system("rm mothur*")
             subprocess.check_call(["rm",
                                    _temp_name(tn, "blast_parsed.txt"),
                                    _temp_name(tn, "blast_unique.parsed.txt"),
