@@ -254,13 +254,17 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
         parse_rf_file(_temp_name(tn, "tmp.RF"), thread_distance_file)
         thread_name_file = str(thread_id) + '_name.txt'
         write_strip_name(f, thread_name_file)
+        polys_name_file = str(thread_id) + '_polys.txt'
+        parse_poly_file(_temp_name(tn, "polys.txt", polys_name_file))
         subprocess.check_call(["rm",
                                _temp_name(tn, "blast_parsed.txt"),
                                _temp_name(tn, "blast_unique.parsed.txt"),
                                _temp_name(tn, "seqs_in.fas"),
                                _temp_name(tn, "seqs_aligned.fas"),
                                _temp_name(tn, "tmp.tree"),
-                               _temp_name(tn, "tmp.RF")])
+                               _temp_name(tn, "tmp.RF"),
+                               _temp_name(tn, "mask.txt"),
+                               _temp_name(tn, "padded.txt")])
         return (thread_distance_file, thread_name_file)
 
     files = os.listdir(fastadir)
@@ -352,6 +356,12 @@ def parse_rf_file(infile, outfile):
         print >> handle, line,
     handle.close()
 
+def parse_poly_file(infile, outfile):
+    handle = open(outfile, "a")
+    for line in open(infile):
+        print >> handle, line,
+    handle.close()
+    
 def write_strip_name(filename, outfile):
     handle = open(outfile, "a")
     filename = os.path.splitext(os.path.basename(filename))[0]
