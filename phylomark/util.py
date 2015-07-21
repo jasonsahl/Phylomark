@@ -255,7 +255,7 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
         thread_name_file = str(thread_id) + '_name.txt'
         write_strip_name(f, thread_name_file)
         polys_name_file = str(thread_id) + '_polys.txt'
-        parse_poly_file(_temp_name(tn, "polys.txt", polys_name_file))
+        parse_poly_file(_temp_name(tn, "polys.txt"), polys_name_file))
         subprocess.check_call(["rm",
                                _temp_name(tn, "blast_parsed.txt"),
                                _temp_name(tn, "blast_unique.parsed.txt"),
@@ -361,7 +361,7 @@ def parse_poly_file(infile, outfile):
     for line in open(infile):
         print >> handle, line,
     handle.close()
-    
+
 def write_strip_name(filename, outfile):
     handle = open(outfile, "a")
     filename = os.path.splitext(os.path.basename(filename))[0]
