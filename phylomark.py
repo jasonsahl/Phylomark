@@ -64,7 +64,7 @@ def main(alignment, mask, ref, combined, tree, step_size, frag_length, keep_leng
     os.system("cat tmp.txt all_distances.txt > results.txt")
     logging.logPrint("Cleaning up")
     try:
-        subprocess.check_call("rm length.txt distance.txt name.txt polys.txt tmp.txt all_distances.txt mothur*", shell=True)
+        subprocess.check_call("rm length.txt distance.txt name.txt polys.txt tmp.txt all_distances.txt", shell=True)
     except:
         sys.exc_clear()
     cleanup_tmpdirs(fastadir)
