@@ -179,6 +179,21 @@ def run_dendropy(tmp_tree, wga_tree, outfile):
     RFs = tree_one.symmetric_difference(tree_two)
     print >> out, RFs
 
+def check_and_align_seqs(infile, num_genomes, outfile):
+    lengths = [ ]
+    #names = get_seq_name(infile)
+    #reduced = names.replace('.extracted.seqs','')
+    for record in SeqIO.parse(infile, "fasta"):
+        lengths.append(len(record.seq))
+    lengths.sort(key=int)
+    try:
+        if (lengths[0]/lengths[-1]) > 0.75 and len(lengths) == num_genomes:
+            os.system("muscle -in %s -out %s > /dev/null 2>&1" % (infile,outfile))
+        else:
+            pass
+    except:
+        pass
+
 def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
     def _temp_name(t, f):
         return t + '_' + f
@@ -192,9 +207,18 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
                                                           _temp_name(tn, "blast_unique.parsed.txt")),
                               shell=True)
         parsed_blast_to_seqs(_temp_name(tn, "blast_unique.parsed.txt"), _temp_name(tn, "seqs_in.fas"))
-        subprocess.check_call("muscle -in %s -out %s > /dev/null 2>&1" % (_temp_name(tn, "seqs_in.fas"),
-                                                                          _temp_name(tn, "seqs_aligned.fas")),
-                              shell=True)
+        check_and_align_seqs(_temp_name(tn, "seqs_in.fas"), num_refs, _temp_name(tn, "seqs_aligned.fas"))
+        #subprocess.check_call("muscle -in %s -out %s > /dev/null 2>&1" % (_temp_name(tn, "seqs_in.fas"),
+        #                                                                  _temp_name(tn, "seqs_aligned.fas")),
+        #                      shell=True)
+        if os.path.isfile(_temp_name(tn, "seqs_aligned.fas")):
+            pass
+        else:
+            subprocess.check_call(["rm",
+                                   _temp_name(tn, "blast_parsed.txt"),
+                                   _temp_name(tn, "blast_unique.parsed.txt"),
+                                   _temp_name(tn, "seqs_in.fas")])
+            break
         subprocess.call(['mothur',
                                '#filter.seqs(fasta=%s, soft=100, vertical=F)' % _temp_name(tn, "seqs_aligned.fas")], stdout=subprocess.PIPE)
         subprocess.check_call('sed "s/[^1]/0/g" %s | sed "s/0/2/g" | sed "s/1/0/g" | sed "s/2/1/g" > %s' % (_temp_name(tn, "seqs_aligned.filter"),
