@@ -279,6 +279,7 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
     subprocess.call("rm distance.txt name.txt", shell=True, stderr=open(os.devnull, 'w'))
 
     for files in func.chunk(5, results):
+        print files
         distances = [d for d, _ in files]
         names = [n for _, n in files]
         polys = [p for _, p in files]
