@@ -234,7 +234,7 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
         subprocess.check_call(['mothur',
                                '#filter.seqs(fasta=%s, soft=100, vertical=F)' % _temp_name(tn, "seqs_aligned.fas")])
         subprocess.check_call('sed "s/[^1]/0/g" %s | sed "s/0/2/g" | sed "s/1/0/g" | sed "s/2/1/g" > %s' % (_temp_name(tn, "seqs_aligned.filter"),
-                                                                                                            _temp_name(tn, "mask.txt")))
+                                                                                                            _temp_name(tn, "mask.txt")), shell=True)
         if "T" == run_r:
             name = get_seq_name(f)
             subprocess.check_call("cat snps.r | R --slave --args %s %s.table %s.pdf 2> /dev/null" % (_temp_name(tn, "seqs_aligned.fas"), name, name),
