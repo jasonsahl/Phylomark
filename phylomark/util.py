@@ -44,11 +44,11 @@ class Increments:
 record_count_1 = Increments(1, 1)
 record_count_2 = Increments(1, 1)
 
-def paste_files(name_file, distance_file, poly_file, all_distance_file):
+def paste_files(name_file, distance_file, poly_file, length_file, all_distance_file):
     handle = open(all_distance_file, "w")
     output = []
     distance_file_lines = open(distance_file, "rU").readlines()
-    for lines in zip(open(name_file, "rU"), open(distance_file, "rU"), open(poly_file, "rU")):
+    for lines in zip(open(name_file, "rU"), open(distance_file, "rU"), open(poly_file, "rU"), open(length_file, "rU")):
         handle.write("\t".join([s.strip() for s in lines]) + "\n")
     handle.close()
 
@@ -265,7 +265,6 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
         parse_poly_file(_temp_name(tn, "polys.txt"), polys_name_file)
         length_name_file = str(thread_id) + '_length.txt'
         parse_poly_file(_temp_name(tn, "length.txt"), length_name_file)
-
         subprocess.check_call(["rm",
                                _temp_name(tn, "blast_parsed.txt"),
                                _temp_name(tn, "blast_unique.parsed.txt"),
@@ -277,8 +276,9 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
                                _temp_name(tn, "padded.txt"),
                                _temp_name(tn, "polys.txt"),
                                _temp_name(tn, "seqs_aligned.filter"),
+                               _temp_name(tn, "length.txt"),
                                _temp_name(tn, "seqs_aligned.filter.fasta")])
-        return (thread_distance_file, thread_name_file, polys_name_file)
+        return (thread_distance_file, thread_name_file, polys_name_file, length_name_file)
 
     files = os.listdir(fastadir)
     files_and_temp_names = [(str(idx), os.path.join(fastadir, f))
@@ -289,28 +289,32 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
                               num_workers=parallel_workers))
 
     #I do this to make sure and remove any old files that are setting around
-    subprocess.call("rm distance.txt name.txt polys.txt", shell=True, stderr=open(os.devnull, 'w'))
+    subprocess.call("rm distance.txt name.txt polys.txt length.txt", shell=True, stderr=open(os.devnull, 'w'))
 
     for files in func.chunk(5, results):
         #print files
         distances = []
         names = []
         polys = []
+        lengths = []
         for value in files:
         #distances = [d for d, _ in files]
             #print value
             distances.append(value[0])
             names.append(value[1])
             polys.append(value[2])
+            lengths.append(value[3])
         #names = [n for _, n in files]
         #polys = [p for _, p in files]
         subprocess.check_call("cat %s >> distance.txt" % " ".join(distances), shell=True)
         subprocess.check_call("cat %s >> name.txt" % " ".join(names), shell=True)
         subprocess.check_call("cat %s >> polys.txt" % " ".join(polys), shell=True)
+        subprocess.check_call("cat %s >> length.txt" % " ".join(lengths), shell=True)
         subprocess.check_call("rm %s" % " ".join(distances), shell=True)
         subprocess.check_call("rm %s" % " ".join(names), shell=True)
         subprocess.check_call("rm %s" % " ".join(polys), shell=True)
-    paste_files("name.txt", "distance.txt", "polys.txt", "all_distances.txt")
+        subprocess.check_call("rm %s" % " ".join(lengths), shell=True)
+    paste_files("name.txt", "distance.txt", "polys.txt", "length.txt", "all_distances.txt")
 
 def pull_line(names_in, quality_in, out_file):
     handle = open(out_file, "w")
