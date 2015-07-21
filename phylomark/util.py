@@ -94,9 +94,9 @@ def split_read(input_file, output_file):
         print >> handle, ' '.join(line)
     handle.close()
 
-def sum_qual_reads(input_file):
+def sum_qual_reads(input_file, output_file):
     """adds up quality values for each sequence"""
-    handle = open("summed_qualities.txt", "w")
+    handle = open(output_file, "w")
     padded_qual_lines = open(input_file, "rU")
     for line in padded_qual_lines.xreadlines():
         sum_values = sum([int(s) for s in line.split()])
@@ -231,11 +231,11 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
         subprocess.check_call("muscle -in %s -out %s > /dev/null 2>&1" % (_temp_name(tn, "seqs_in.fas"),
                                                                           _temp_name(tn, "seqs_aligned.fas")),
                               shell=True)
-        subprocess.check_call(['mothur',
-                               '#filter.seqs(fasta=%s, soft=100, vertical=F)' % _temp_name(tn, "seqs_aligned.fas")])
+        subprocess.check_call('mothur #filter.seqs(fasta=%s, soft=100, vertical=F)' % _temp_name(tn, "seqs_aligned.fas"), shell=True)
         subprocess.check_call('sed "s/[^1]/0/g" %s | sed "s/0/2/g" | sed "s/1/0/g" | sed "s/2/1/g" > %s' % (_temp_name(tn, "seqs_aligned.filter"),
                                                                                                             _temp_name(tn, "mask.txt")), shell=True)
         split_read(_temp_name(tn, "mask.txt"),_temp_name(tn, "padded.txt"))
+        sum_qual_reads(_temp_name(tn, "padded.txt", _temp_name(tn,"polys.txt"))
         if "T" == run_r:
             name = get_seq_name(f)
             subprocess.check_call("cat snps.r | R --slave --args %s %s.table %s.pdf 2> /dev/null" % (_temp_name(tn, "seqs_aligned.fas"), name, name),
