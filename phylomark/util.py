@@ -271,19 +271,20 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
     #I do this to make sure and remove any old files that are setting around
     subprocess.call("rm distance.txt name.txt polys.txt length.txt", shell=True, stderr=open(os.devnull, 'w'))
 
-    if results:
-        for files in func.chunk(5, results):
-            #print files
-            distances = []
-            names = []
-            polys = []
-            lengths = []
-            for value in files:
+    for files in func.chunk(5, results):
+        #print files
+        distances = []
+        names = []
+        polys = []
+        lengths = []
+        for value in files:
+            if len(value)>3:
                 print value
                 distances.append(value[0])
                 names.append(value[1])
                 polys.append(value[2])
                 lengths.append(value[3])
+        if distances:
             subprocess.check_call("cat %s >> distance.txt" % " ".join(distances), shell=True)
             subprocess.check_call("cat %s >> name.txt" % " ".join(names), shell=True)
             subprocess.check_call("cat %s >> polys.txt" % " ".join(polys), shell=True)
@@ -292,7 +293,7 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
             subprocess.check_call("rm %s" % " ".join(names), shell=True)
             subprocess.check_call("rm %s" % " ".join(polys), shell=True)
             subprocess.check_call("rm %s" % " ".join(lengths), shell=True)
-        paste_files("name.txt", "distance.txt", "polys.txt", "length.txt", "all_distances.txt")
+    paste_files("name.txt", "distance.txt", "polys.txt", "length.txt", "all_distances.txt")
 
 def pull_line(names_in, quality_in, out_file):
     handle = open(out_file, "w")
