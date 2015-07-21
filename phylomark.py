@@ -72,13 +72,16 @@ def main(alignment, mask, ref, combined, tree, step_size, frag_length, keep_leng
     logging.logPrint("Starting the loop")
     tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs)
     logging.logPrint("Loop finished")
-    subprocess.check_call("awk '{print $1}' all_distances.txt > names.txt", shell=True) #should I sort?
+    #subprocess.check_call("awk '{print $1}' all_distances.txt > names.txt", shell=True) #should I sort?
     #pull_line("names.txt", "summed_qualities.txt", "reduced_quals.txt")
     #merge_files_by_column(0, "all_distances.txt", "summed_qualities.txt", "results.txt")
     #os.system("cp ")
+    outfile = open("tmp.txt", "w")
+    print >> outfile, "sequence\tRF\t#polymorphisms"
+    os.system("cat tmp.txt all_distances.txt > results.txt")
     logging.logPrint("Cleaning up")
     try:
-        subprocess.check_call("rm distance.txt name.txt polys.txt", shell=True)
+        subprocess.check_call("rm distance.txt name.txt polys.txt tmp.txt all_distances.txt", shell=True)
     except:
         sys.exc_clear()
     cleanup_tmpdirs(fastadir)
