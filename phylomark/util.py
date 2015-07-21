@@ -206,6 +206,11 @@ def get_ref_numbers(combined):
         records.append(record.id)
     return len(records)
 
+def get_contig_length(in_fasta):
+    length = []
+    for record in SeqIO.parse(open(in_fasta, "U"), "fasta"):
+       length.append(len(record.seq))
+    return length
 
 def run_dendropy(tmp_tree, wga_tree, outfile):
     out = open(outfile, "w")
@@ -249,6 +254,7 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
                                                                              _temp_name(tn, "tmp.tree")),
                               shell=True)
         run_dendropy("%s" % (_temp_name(tn, "tmp.tree")), tree, "%s" % (_temp_name(tn, "tmp.RF")))
+        get_contig_length(f, _temp_name(tn, "length.txt"))
         thread_id = id(threading.current_thread())
         thread_distance_file = str(thread_id) + '_distance.txt'
         parse_rf_file(_temp_name(tn, "tmp.RF"), thread_distance_file)
@@ -256,6 +262,9 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
         write_strip_name(f, thread_name_file)
         polys_name_file = str(thread_id) + '_polys.txt'
         parse_poly_file(_temp_name(tn, "polys.txt"), polys_name_file)
+        length_name_file = str(thread_id) + '_length.txt'
+        parse_poly_file(_temp_name(tn, "length.txt"), length_name_file)
+
         subprocess.check_call(["rm",
                                _temp_name(tn, "blast_parsed.txt"),
                                _temp_name(tn, "blast_unique.parsed.txt"),
