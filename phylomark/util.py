@@ -286,9 +286,9 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
         polys = []
         for value in files:
         #distances = [d for d, _ in files]
-            distances.append(files[0])
-            names.append(files[1])
-            polys.append(files[2])
+            distances.append(values[0])
+            names.append(values[1])
+            polys.append(values[2])
         #names = [n for _, n in files]
         #polys = [p for _, p in files]
         subprocess.check_call("cat %s >> distance.txt" % " ".join(distances), shell=True)
