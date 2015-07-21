@@ -78,7 +78,7 @@ def main(alignment, mask, ref, combined, tree, step_size, frag_length, keep_leng
     #os.system("cp ")
     logging.logPrint("Cleaning up")
     try:
-        subprocess.check_call("rm blast* continuous* distance.txt name.txt seq_names_over_value.txt", shell=True)
+        subprocess.check_call("rm distance.txt name.txt polys.txt", shell=True)
     except:
         sys.exc_clear()
     cleanup_tmpdirs(fastadir)
