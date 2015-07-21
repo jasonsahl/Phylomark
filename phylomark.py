@@ -73,11 +73,12 @@ def main(alignment, mask, ref, combined, tree, step_size, frag_length, keep_leng
     tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs)
     logging.logPrint("Loop finished")
     subprocess.check_call("awk '{print $1}' all_distances.txt > names.txt", shell=True) #should I sort?
-    pull_line("names.txt", "summed_qualities.txt", "reduced_quals.txt")
-    merge_files_by_column(0, "all_distances.txt", "summed_qualities.txt", "results.txt")
+    #pull_line("names.txt", "summed_qualities.txt", "reduced_quals.txt")
+    #merge_files_by_column(0, "all_distances.txt", "summed_qualities.txt", "results.txt")
+    #os.system("cp ")
     logging.logPrint("Cleaning up")
     try:
-        subprocess.check_call("rm reduced_quals.txt summed_qualities.txt quals_shredded.txt padded_quals.txt blast* continuous* distance.txt name.txt seq_names_over_value.txt", shell=True)
+        subprocess.check_call("rm blast* continuous* distance.txt name.txt seq_names_over_value.txt", shell=True)
     except:
         sys.exc_clear()
     cleanup_tmpdirs(fastadir)
