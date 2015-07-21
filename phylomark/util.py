@@ -266,7 +266,8 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
                                _temp_name(tn, "mask.txt"),
                                _temp_name(tn, "padded.txt"),
                                _temp_name(tn, "polys.txt"),
-                               _temp_name(tn, "seqs_aligned.filter")])
+                               _temp_name(tn, "seqs_aligned.filter"),
+                               _temp_name(tn, "seqs_aligned.filter.fasta")])
         return (thread_distance_file, thread_name_file, polys_name_file)
 
     files = os.listdir(fastadir)
