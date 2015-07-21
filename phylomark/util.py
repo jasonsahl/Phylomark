@@ -235,7 +235,6 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
         subprocess.check_call("FastTree -nt -noboot %s > %s 2> /dev/null" % (_temp_name(tn, "seqs_aligned.fas"),
                                                                              _temp_name(tn, "tmp.tree")),
                               shell=True)
-        #value = run_dendropy("%s" % (_temp_name(tn, "tmp.tree")), tree, "%s" % (_temp_name(tn, "tmp.RF")))
         run_dendropy("%s" % (_temp_name(tn, "tmp.tree")), tree, "%s" % (_temp_name(tn, "tmp.RF")))
         thread_id = id(threading.current_thread())
         thread_distance_file = str(thread_id) + '_distance.txt'
