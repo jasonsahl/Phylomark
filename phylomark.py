@@ -41,7 +41,7 @@ def main(alignment, mask, ref, combined, tree, step_size, frag_length, keep_leng
         else:
             print "R is not in your path, but needs to be!"
             sys.exit()
-    dependencies = ['mothur','muscle','FastTree','blastn','makeblastdb']
+    dependencies = ['mothur','muscle','FastTree','blastn','makeblastdb','mothur']
     logging.logPrint("Checking the path of dependencies")
     for dependency in dependencies:
         ra = subprocess.call(['which', '%s' % dependency])
@@ -52,30 +52,12 @@ def main(alignment, mask, ref, combined, tree, step_size, frag_length, keep_leng
             sys.exit()
     logging.logPrint("Prepping sequences")
     check_tree_and_reads(combined, tree)
-    #reads = split_sequence_by_window(alignment, step_size, frag_length)
-    #write_sequences(reads)
-    #qual_reads = split_quality_values(mask, step_size, frag_length)
-    #write_qualities(qual_reads)
-    #split_read("quals_shredded.txt")
-    #sum_qual_reads("padded_quals.txt")
-    #filter_lines_by_value("summed_qualities.txt", keep_length)
-    #get_seqs_by_id("seqs_shredded.txt", "seq_names_over_value.txt", "query_sequences.fas")
-    #os.system("makeblastdb -in %s -dbtype nucl > /dev/null 2>&1" % ref)
-    #logging.logPrint("Blasting to find contiguous sequences")
-    #blast_against_single("query_sequences.fas", ref, "6")
-    #filter_blast_report("blast_one.out", frag_length)
     os.system("makeblastdb -in %s -dbtype nucl > /dev/null 2>&1" % combined)
-    #os.system("makeblastdb -in %s -dbtype nucl > /dev/null 2>&1" % alignment)
     num_refs = get_ref_numbers(combined)
-    #fastadir = get_reduced_seqs_by_id("query_sequences.fas", "continuous_seq_names.txt")
     fastadir = split_seqs(alignment)
     logging.logPrint("Starting the loop")
     tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs)
     logging.logPrint("Loop finished")
-    #subprocess.check_call("awk '{print $1}' all_distances.txt > names.txt", shell=True) #should I sort?
-    #pull_line("names.txt", "summed_qualities.txt", "reduced_quals.txt")
-    #merge_files_by_column(0, "all_distances.txt", "summed_qualities.txt", "results.txt")
-    #os.system("cp ")
     outfile = open("tmp.txt", "w")
     print >> outfile, "sequence\tRF\t#polymorphisms\tcontig_length"
     outfile.close()

@@ -52,43 +52,10 @@ def paste_files(name_file, distance_file, poly_file, length_file, all_distance_f
         handle.write("\t".join([s.strip() for s in lines]) + "\n")
     handle.close()
 
-def split_sequence_by_window(input_file, step_size, frag_length):
-    """cuts up fasta sequences into given chunks"""
-    infile = open(input_file, "rU")
-    first_record = list(itertools.islice(SeqIO.parse(infile,"fasta"), 1))[0]
-    return sliding_window(first_record.seq, frag_length, step_size)
-
-def write_sequences(reads):
-    """write shredded fasta sequences to disk"""
-    handle = open("seqs_shredded.txt", "w")
-    for read in reads:
-        print >> handle, ">%d\n%s" % (record_count_1.next(), read)
-    handle.close()
-
-def split_quality_values(qual_file, step_size, frag_length):
-    infile = open(qual_file, "rU")
-    instring = infile.readlines()
-    infile.close()
-    qual_reads = sliding_window(','.join(instring), frag_length, step_size)
-    return qual_reads
-
-def sliding_window(sequence, frag_length, step_size=5):
-    """cuts up sequence into a given length"""
-    numOfChunks = (len(sequence) - frag_length) + 1
-    for i in range(0, numOfChunks, step_size):
-        yield sequence[i:i + frag_length]
-
-def write_qualities(qual_reads):
-    """write shredded quality files to disk"""
-    handle = open("quals_shredded.txt", "w")
-    for read in qual_reads:
-        print >> handle, read
-    handle.close()
-
 def split_read(input_file, output_file):
     """insert gaps into quality files - needed to put into array"""
     handle = open(output_file, "w")
-    qual_lines = open(input_file, "rW")
+    qual_lines = open(input_file, "rU")
     for line in qual_lines:
         line = line.strip()
         print >> handle, ' '.join(line)
@@ -101,14 +68,6 @@ def sum_qual_reads(input_file, output_file):
     for line in padded_qual_lines.xreadlines():
         sum_values = sum([int(s) for s in line.split()])
         print >> handle, sum_values
-    handle.close()
-
-def filter_lines_by_value(filter_in, keep_length):
-    handle = open("seq_names_over_value.txt", "w")
-    for line in open(filter_in):
-        fields = line.split(" ")
-        if int(fields[1]) >= keep_length:
-            print >> handle, line,
     handle.close()
 
 def get_seqs_by_id(fasta_file, names_file, out_file):
@@ -217,7 +176,6 @@ def run_dendropy(tmp_tree, wga_tree, outfile):
     out = open(outfile, "w")
     tree_one = dendropy.Tree.get_from_path(wga_tree,schema="newick",preserve_underscores=True)
     tree_two = dendropy.Tree.get_from_path(tmp_tree,schema="newick",preserve_underscores=True, taxon_set=tree_one.taxon_set)
-    #RFs = dendropy.treecalc.robinson_foulds_distance(tree_one, tree_two)
     RFs = tree_one.symmetric_difference(tree_two)
     print >> out, RFs
 
@@ -298,14 +256,10 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
         polys = []
         lengths = []
         for value in files:
-        #distances = [d for d, _ in files]
-            #print value
             distances.append(value[0])
             names.append(value[1])
             polys.append(value[2])
             lengths.append(value[3])
-        #names = [n for _, n in files]
-        #polys = [p for _, p in files]
         subprocess.check_call("cat %s >> distance.txt" % " ".join(distances), shell=True)
         subprocess.check_call("cat %s >> name.txt" % " ".join(names), shell=True)
         subprocess.check_call("cat %s >> polys.txt" % " ".join(polys), shell=True)
