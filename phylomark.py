@@ -16,6 +16,13 @@ def test_file(option, opt_str, value, parser):
         print '%s cannot be opened' % option
         sys.exit()
 
+def test_dir(option, opt_str, value, parser):
+    if os.path.exists(value):
+        setattr(parser.values, option.dest, value)
+    else:
+        print "directory of fastas cannot be found"
+        sys.exit()
+        
 def test_options(option, opt_str, value, parser):
     if "F" in value:
         setattr(parser.values, option.dest, value)
