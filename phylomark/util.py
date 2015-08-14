@@ -160,6 +160,10 @@ def get_reduced_seqs_by_id(fasta_file, names_file):
             SeqIO.write([record], open(f_out, "w"), "fasta")
     return fastadir
 
+def get_seq_name(in_fasta):
+    """used for renaming the sequences"""
+    return os.path.basename(in_fasta)
+
 def get_ref_numbers(combined):
     records = []
     for record in SeqIO.parse(open(combined), "fasta"):
