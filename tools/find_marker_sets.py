@@ -12,6 +12,7 @@ import os
 import subprocess
 import random
 import errno
+import dendropy
 
 def get_seq_name(fasta_in):
     name = os.path.basename(fasta_in)
