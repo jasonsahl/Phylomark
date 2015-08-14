@@ -172,6 +172,41 @@ def get_contig_length(in_fasta, outfile):
        length.append(str(len(record.seq)))
     my_out.write("".join(length)+"\n")
 
+class Increments:
+    def __init__(self, start, increment):
+        self.state = start
+        self.p_start = start
+        self.p_increment = increment
+
+    def next(self):
+        self.state += self.p_increment
+        return self.state
+
+    def reset(self):
+        self.state = self.p_start
+
+record_count_1 = Increments(1, 1)
+record_count_2 = Increments(1, 1)
+
+def split_sequence_by_window(input_file, step_size, frag_length):
+    """cuts up fasta sequences into given chunks"""
+    infile = open(input_file, "rU")
+    first_record = list(itertools.islice(SeqIO.parse(infile,"fasta"), 1))[0]
+    return sliding_window(first_record.seq, frag_length, step_size)
+
+def sliding_window(sequence, frag_length, step_size):
+    """cuts up sequence into a given length"""
+    numOfChunks = (len(sequence) - frag_length) + 1
+    for i in range(0, numOfChunks, step_size):
+        yield sequence[i:i + frag_length]
+
+def write_sequences(reads):
+    """write shredded fasta sequences to disk"""
+    handle = open("seqs_shredded.txt", "w")
+    for read in reads:
+        print >> handle, ">%d\n%s" % (record_count_1.next(), read)
+    handle.close()
+
 def run_dendropy(tmp_tree, wga_tree, outfile):
     out = open(outfile, "w")
     tree_one = dendropy.Tree.get_from_path(wga_tree,schema="newick",preserve_underscores=True)
@@ -208,9 +243,6 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
                               shell=True)
         parsed_blast_to_seqs(_temp_name(tn, "blast_unique.parsed.txt"), _temp_name(tn, "seqs_in.fas"))
         check_and_align_seqs(_temp_name(tn, "seqs_in.fas"), num_refs, _temp_name(tn, "seqs_aligned.fas"))
-        #subprocess.check_call("muscle -in %s -out %s > /dev/null 2>&1" % (_temp_name(tn, "seqs_in.fas"),
-        #                                                                  _temp_name(tn, "seqs_aligned.fas")),
-        #                      shell=True)
         if os.path.isfile(_temp_name(tn, "seqs_aligned.fas")):
             subprocess.call(['mothur',
                                    '#filter.seqs(fasta=%s, soft=100, vertical=F)' % _temp_name(tn, "seqs_aligned.fas")], stdout=subprocess.PIPE)
