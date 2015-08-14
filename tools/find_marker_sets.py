@@ -110,12 +110,10 @@ def select_random_seqs(seq_path, markers):
         SeqIO.write(seqrecords, outfile, "fasta")
         outfile.close()
 
-def parse_hashrf_file(infile):
-    for line in open(infile, "U"):
-        if "<0,1>" in line:
-            fields = line.split(" ")
-            rf = fields[1]
-    return rf
+def parse_rf_file(infile, outfile):
+    handle = open(outfile, "a")
+    for line in open(infile):
+        print >> handle, line,
     handle.close()
 
 def test_dir(option, opt_str, value, parser):
@@ -179,7 +177,7 @@ def run_loop(seq_path, markers, start_dir, tree_path, iterations):
         os.system("cat %s %s > combined.tree" % (tree_path, "tmp.tree"))
         #os.system("hashrf %s 2 -p list -o %s > /dev/null 2>&1" % ("combined.tree", "result.rf"))
         run_dendropy("tmp.tree", "combined.tree", "result.rf")
-        rf=parse_hashrf_file("result.rf")
+        rf = parse_hashrf_file("result.rf")
         print >> out_results,"\t".join(headers),"\t",rf,
         print "%s processed" % name
         #os.system("rm *fasta* tmp_concatenated all_concatenated")
