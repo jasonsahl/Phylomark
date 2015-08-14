@@ -169,9 +169,9 @@ def get_ref_numbers(combined):
 def process_fastas(directory, out_fasta):
     """make the combined fasta file"""
     fout = open(out_fasta, "w")
-    for infile in glob.glob(os.path.join(directory, '*.fas')):
+    for infile in glob.glob(os.path.join(directory, '*.fasta')):
         names = get_seq_name(infile)
-        reduced = names.rstrip('.fas')
+        reduced = names.rstrip('.fasta')
         fout.write('>' + str(reduced) + '\n')
         for record in SeqIO.parse(open(infile), "fasta"):
             fout.write(str(record.seq) + '\n')

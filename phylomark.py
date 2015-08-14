@@ -64,7 +64,7 @@ def main(ref, genomes, tree, step_size, frag_length, parallel_workers, run_r):
     write_sequences(reads)
     process_fastas(genome_path, "combined.seqs")
     check_tree_and_reads("combined.seqs", tree)
-    os.system("makeblastdb -in %s -dbtype nucl > /dev/null 2>&1" % combined)
+    os.system("makeblastdb -in combined.seqs -dbtype nucl > /dev/null 2>&1")
     num_refs = get_ref_numbers(combined)
     fastadir = split_seqs("seqs_shredded.txt")
     logging.logPrint("Starting the loop")
