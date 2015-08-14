@@ -42,6 +42,7 @@ def run_blast(infile):
         subprocess.check_call("sort -u -k 2,2 %s.blast.out > %s.blast.unique" % (reduced,reduced), shell=True)
     except:
         print "%s not produced" % reduced
+
     #cmd = ["blastn",
     #        "-query", infile,
     #        "-db", "combined.seqs",
@@ -164,7 +165,8 @@ def run_loop(seq_path, markers, start_dir, tree_path, iterations):
         #for blast_output in glob.glob(os.path.join(new_dir, '*blast.out')):
         #    parse_blast_xml_report(blast_output)
         for parsed in glob.glob(os.path.join(new_dir, '*blast.unique')):
-            parsed_blast_to_seqs("%s.blast.unique" % reduced, "%s.extracted.seqs" % reduced)
+            reduced = parsed.replace(".blast.unique","")
+            parsed_blast_to_seqs(parsed, "%s.extracted.seqs" % reduced)
         #os.system("rm *.blast.out *.blast.parsed *.blast.unique")
         split_files()
         process_fastas()
