@@ -37,7 +37,7 @@ def run_blast(infile):
     names = get_seq_name(infile)
     reduced = names.replace('.fasta','')
     os.system('blastn -query %s -db combined.seqs -out %s.blast.out -dust no -num_alignments 2000 -outfmt "7 std sseq"' % (infile,reduced))
-    subprocess.check_call("sort -u -k 2,2 %s.blast.out > %s.unique")
+    subprocess.check_call("sort -u -k 2,2 %s.blast.out > %s.unique" % (reduced,reduced))
     #cmd = ["blastn",
     #        "-query", infile,
     #        "-db", "combined.seqs",
