@@ -165,7 +165,7 @@ def run_loop(seq_path, markers, start_dir, tree_path, iterations):
         #    parse_blast_xml_report(blast_output)
         for parsed in glob.glob(os.path.join(new_dir, '*blast.unique')):
             parsed_blast_to_seqs("%s.blast.unique" % reduced, "%s.extracted.seqs" % reduced)
-        os.system("rm *.blast.out *.blast.parsed *.blast.unique")
+        #os.system("rm *.blast.out *.blast.parsed *.blast.unique")
         split_files()
         process_fastas()
         os.system("cat *.seqs.fasta.concat > tmp_concatenated")
