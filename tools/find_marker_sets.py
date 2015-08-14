@@ -164,7 +164,7 @@ def run_loop(seq_path, markers, start_dir, tree_path, iterations):
         #for blast_output in glob.glob(os.path.join(new_dir, '*blast.out')):
         #    parse_blast_xml_report(blast_output)
         for parsed in glob.glob(os.path.join(new_dir, '*blast.unique')):
-            parsed_blast_to_seqs(parsed)
+            parsed_blast_to_seqs("%s.blast.unique" % reduced, "%s.extracted.seqs" % reduced)
         os.system("rm *.blast.out *.blast.parsed *.blast.unique")
         split_files()
         process_fastas()
@@ -180,7 +180,7 @@ def run_loop(seq_path, markers, start_dir, tree_path, iterations):
         rf=parse_hashrf_file("result.rf")
         print >> out_results,"\t".join(headers),"\t",rf,
         print "%s processed" % name
-        os.system("rm *fasta* tmp_concatenated all_concatenated")
+        #os.system("rm *fasta* tmp_concatenated all_concatenated")
 
 def main(directory, seqs, markers, tree, iterations):
     dir_path=os.path.abspath("%s" % directory)
