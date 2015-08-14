@@ -36,48 +36,29 @@ def combine_seqs(dir_path):
 def run_blast(infile):
     names = get_seq_name(infile)
     reduced = names.replace('.fasta','')
-    cmd = ["blastall",
-            "-p", "blastn",
-            "-i", infile,
-            "-d", "combined.seqs",
-            "-o", "%s.blast.out" % reduced,
-            "-m", "7",
-            "-b", "2000",
-            "-v", "2000",
-            "-q", "-4",
-            "-r", "5",
-            "-a", "8",
-            "-F", "F"]
-    subprocess.check_call(cmd)
+    os.system('blastn -query %s -db combined.seqs -out %s.blast.out -dust no -num_alignments 2000 -outfmt "7 std sseq"' % (infile,reduced))
+    subprocess.check_call("sort -u -k 2,2 %s.blast.out > %s.unique"
+    #cmd = ["blastn",
+    #        "-query", infile,
+    #        "-db", "combined.seqs",
+    #        "-o", "%s.blast.out" % reduced,
+    #        "-outfmt", "7",
+    #        "-num_alignments", "2000",
+    #        "-num_threads", "4",
+    #        "-dust", "no"]
+    #subprocess.check_call(cmd)
 
-def parse_blast_xml_report(blast_output):
-    """uses biopython to split the output
-    from a blast file with xml output"""
-    names = get_seq_name(blast_output)
-    reduced = names.replace('.blast.out','')
-    result_handle = open(blast_output, "U")
-    blast_records = NCBIXML.parse(result_handle)
-    blast_record = blast_records.next()
-    handle = open("%s.blast.parsed" % reduced, "w")
-    for alignment in blast_record.alignments:
-        for hsp in alignment.hsps:
-            test = Seq(hsp.sbjct)
-            if int(hsp.query_start)<int(hsp.query_end):
-                print >> handle, ">", alignment.title, test
-            if int(hsp.query_start)>int(hsp.query_end):
-                print >> handle, ">", alignment.title, test.reverse_complement()
+def parsed_blast_to_seqs(parsed_file, outfile):
+    infile = open(parsed_file, "rU")
+    handle = open(outfile, "w")
+    for line in infile:
+        if line.startswith("#"):
+            pass
+        else:
+            fields = line.split()
+            print >> handle, ">"+str(fields[1])
+            print >> handle, fields[12]
     handle.close()
-    result_handle.close()
-    os.system("sort -u -k 3,3 %s.blast.parsed > %s.blast.unique" % (reduced, reduced))
-
-def parsed_blast_to_seqs(parsed):
-    names = get_seq_name(parsed)
-    reduced = names.replace('.blast.unique','')
-    outfile = open("%s.extracted.seqs" % reduced, "w")
-    for line in open(parsed, "U"):
-        fields = line.split(" ")
-        print >> outfile, fields[0] + fields[2], "\n", fields[3],
-    outfile.close()
 
 def get_names(fasta_file):
    names = [ ]
@@ -146,6 +127,13 @@ def test_file(option, opt_str, value, parser):
         print '%s file cannot be opened' % option
         sys.exit()
 
+def run_dendropy(tmp_tree, wga_tree, outfile):
+    out = open(outfile, "w")
+    tree_one = dendropy.Tree.get_from_path(wga_tree,schema="newick",preserve_underscores=True)
+    tree_two = dendropy.Tree.get_from_path(tmp_tree,schema="newick",preserve_underscores=True, taxon_set=tree_one.taxon_set)
+    RFs = tree_one.symmetric_difference(tree_two)
+    print >> out, RFs
+
 def run_loop(seq_path, markers, start_dir, tree_path, iterations):
     all_seqs = [ ]
     new_dir=os.getcwd()
@@ -169,8 +157,8 @@ def run_loop(seq_path, markers, start_dir, tree_path, iterations):
         split_multi_fasta(infile)
         for my_file in glob.glob(os.path.join(new_dir, '*.fasta')):
             run_blast(my_file)
-        for blast_output in glob.glob(os.path.join(new_dir, '*blast.out')):
-            parse_blast_xml_report(blast_output)
+        #for blast_output in glob.glob(os.path.join(new_dir, '*blast.out')):
+        #    parse_blast_xml_report(blast_output)
         for parsed in glob.glob(os.path.join(new_dir, '*blast.unique')):
             parsed_blast_to_seqs(parsed)
         os.system("rm *.blast.out *.blast.parsed *.blast.unique")
@@ -183,7 +171,8 @@ def run_loop(seq_path, markers, start_dir, tree_path, iterations):
         os.system("muscle -in reduced_concatenated -out all_concatenated_aligned.fasta > /dev/null 2>&1")
         os.system("FastTree -nt -noboot all_concatenated_aligned.fasta > tmp.tree 2> /dev/null")
         os.system("cat %s %s > combined.tree" % (tree_path, "tmp.tree"))
-        os.system("hashrf %s 2 -p list -o %s > /dev/null 2>&1" % ("combined.tree", "result.rf"))
+        #os.system("hashrf %s 2 -p list -o %s > /dev/null 2>&1" % ("combined.tree", "result.rf"))
+        run_dendropy("tmp.tree", "combined.tree", "result.rf")
         rf=parse_hashrf_file("result.rf")
         print >> out_results,"\t".join(headers),"\t",rf,
         print "%s processed" % name
@@ -203,7 +192,8 @@ def main(directory, seqs, markers, tree, iterations):
             raise
     os.system("mv combined.seqs %s/scratch" % ap)
     os.chdir("%s/scratch" % ap)
-    os.system("formatdb -i combined.seqs -p F")
+    #os.system("formatdb -i combined.seqs -p F")
+    os.system("makeblastdb -in combined.seqs -dbtype nucl > /dev/null 2>&1")
     run_loop(seq_path, markers, ap, tree_path, iterations)
     os.system("cp marker_results.txt %s" % ap)
     os.chdir(ap)
