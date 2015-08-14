@@ -69,6 +69,7 @@ def main(ref, genomes, tree, step_size, frag_length, parallel_workers, run_r):
     fastadir = split_seqs("seqs_shredded.txt")
     logging.logPrint("Starting the loop")
     tree_loop(fastadir, "combined.seqs", tree, parallel_workers, run_r, num_refs)
+    os.system("rm mothur*")
     logging.logPrint("Loop finished")
     outfile = open("tmp.txt", "w")
     print >> outfile, "sequence\tRF\t#polymorphisms\tcontig_length"

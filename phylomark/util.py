@@ -8,7 +8,11 @@ import string
 import itertools
 import threading
 import optparse
-import dendropy
+try:
+    import dendropy
+except:
+    print "dendropy is not being called correctly!"
+    sys.exit()
 import glob
 
 try:
@@ -21,7 +25,6 @@ except:
 
 try:
     from Bio import SeqIO
-    from Bio.Blast import NCBIXML
     from Bio.Seq import reverse_complement
     from Bio.Seq import Seq
     from Bio import Phylo
