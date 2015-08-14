@@ -110,11 +110,15 @@ def select_random_seqs(seq_path, markers):
         SeqIO.write(seqrecords, outfile, "fasta")
         outfile.close()
 
-def parse_rf_file(infile, outfile):
-    handle = open(outfile, "a")
+def parse_rf_file(infile):
+    #handle = open(outfile, "a")
+    RF = []
     for line in open(infile):
-        print >> handle, line,
-    handle.close()
+        newline = line.strip()
+        #print >> handle, line,
+        RF.append(newline)
+    #handle.close()
+    return RF
 
 def test_dir(option, opt_str, value, parser):
     if os.path.exists(value):
