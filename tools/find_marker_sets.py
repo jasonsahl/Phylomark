@@ -169,7 +169,7 @@ def run_loop(seq_path, markers, start_dir, tree_path, iterations):
         for parsed in glob.glob(os.path.join(new_dir, '*blast.unique')):
             reduced = parsed.replace(".blast.unique","")
             parsed_blast_to_seqs(parsed, "%s.extracted.seqs" % reduced)
-        os.system("rm *.blast.out *.blast.parsed *.blast.unique")
+        os.system("rm *.blast.out *.blast.unique")
         split_files()
         process_fastas()
         os.system("cat *.seqs.fasta.concat > tmp_concatenated")
@@ -182,7 +182,7 @@ def run_loop(seq_path, markers, start_dir, tree_path, iterations):
         #os.system("hashrf %s 2 -p list -o %s > /dev/null 2>&1" % ("combined.tree", "result.rf"))
         run_dendropy("tmp.tree", "combined.tree", "result.rf")
         rf = parse_rf_file("result.rf")
-        print >> out_results,"\t".join(headers),"\t",rf,
+        print >> out_results,"\t".join(headers),"\t","".join(rf),"\n"
         print "%s processed" % name
         os.system("rm *fasta* tmp_concatenated all_concatenated")
 
