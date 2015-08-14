@@ -9,6 +9,7 @@ import itertools
 import threading
 import optparse
 import dendropy
+import glob
 
 try:
     from igs.utils import functional as func
