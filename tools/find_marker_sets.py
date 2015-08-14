@@ -177,7 +177,7 @@ def run_loop(seq_path, markers, start_dir, tree_path, iterations):
         os.system("cat %s %s > combined.tree" % (tree_path, "tmp.tree"))
         #os.system("hashrf %s 2 -p list -o %s > /dev/null 2>&1" % ("combined.tree", "result.rf"))
         run_dendropy("tmp.tree", "combined.tree", "result.rf")
-        rf = parse_hashrf_file("result.rf")
+        rf = parse_rf_file("result.rf")
         print >> out_results,"\t".join(headers),"\t",rf,
         print "%s processed" % name
         #os.system("rm *fasta* tmp_concatenated all_concatenated")
