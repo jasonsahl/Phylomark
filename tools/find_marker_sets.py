@@ -39,7 +39,7 @@ def run_blast(infile):
     reduced = names.replace('.fasta','')
     os.system('blastn -query %s -db combined.seqs -out %s.blast.out -dust no -num_alignments 2000 -outfmt "7 std sseq"' % (infile,reduced))
     try:
-        subprocess.check_call("sort -u -k 2,2 %s.blast.out > %s.blast.unique" % (reduced,reduced))
+        subprocess.check_call("sort -u -k 2,2 %s.blast.out > %s.blast.unique" % (reduced,reduced), shell=True)
     except:
         print "%s not produced" % reduced
     #cmd = ["blastn",
