@@ -8,6 +8,8 @@ contact: jasonsahl@gmail.com
 
 v_1_2: fixed potential problem with read orientation prior to fragment alignment
 v_1_3: fixed the script structure, added additional scripts and README details
+v_1_4: Huge overhaul. Blastall changed to blast+. Took away the need for using MUGSY
+       alignments. Now scales better to hundreds to thousands of genomes
 
 -to install Phylomark, enter the directory and type:
 
@@ -23,29 +25,20 @@ To make this permanent, add this to your .bashrc or .profile
 
 -Biopython (www.biopython.org) #in .bashrc, point PYTHONPATH variable to Bio location
  (e.g. PYTHONPATH=/home/jsahl/biopython-1.53:$PYTHONPATH; export PYTHONPATH)
--bx-python-tools (https://bitbucket.org/james_taylor/bx-python/wiki/Home) #add to PYTHONPATH
- (e.g. PYTHONPATH=/home/jsahl/bx-python-central/lib:$PYTHONPATH; export PYTHONPATH)
--HashRF (http://code.google.com/p/hashrf/)
+ -blast+, can be obtained from NCBI
 
 -the following scripts are included with Phylomark.  If you have an architecture different
 than i86linux64, then you may need to re-compile on your system
 -FastTree (http://www.microbesonline.org/fasttree/)
 -mothur (http://www.mothur.org)
 -muscle (http://www.drive5.com/muscle/)
+-Dendropy (see the end of this document for license information)
 
-Phylomark requires 5 files to run correctly:
+Phylomark requires 3 arguments to run correctly:
 
-1. concatenated alignment from the whole genome maf file
-2. whole genome phylogeny
-3. input mask from mothur showing polymorphic positions
-4. combined multi-fastA of all genomes that went into the whole genome alignment
-5. Reference genome from one isolate from the whole genome alignment
-
-Files 1-4 can be created with the Phylomark_prey.py script included.  All you need to have is
-the input MAF file, and a directory of genomes that went into the alignment.  Examples
-of these files for E. coli are included on SourceForge
-
-tools/Phylomark_prep.py --input-maf=your.maf --fasta-dir=fasta_dir
+1. whole genome phylogeny (can be generated with multiple methods)
+2. directory of genomes that went into your phylogeny
+3. Reference genome from one isolate from the whole genome alignment
 
 -Now you want to alter the file, phylomark_env.sh, to set the Phylomark_DIR environment variable.
 Then you can set the environment by:
@@ -54,26 +47,24 @@ source phylomark_env.sh
 
 Once the files are generated and your environment is correct, Phylomark can be run by:
 
-Phylomark.py -a <concatenated_alignment> -m <mothur_mask> -t <wga.tree> -r <reference_genome>
--c <combined_multi_fasta> 
+>phylomark.py -r <reference genome> -d <genome directory> -t <wga.tree>
 
 Other parameters that can be changed include:
 -s : step_size (integer).  The sliding window will move this many bases
 -l : frag_length (integer).  Length of genomic fragments to include
--k : keep_length (integer).  Keep fragments if they contain this many polymorphisms
 --parallel_workers= (integer) : number of processors to use
 
 Known issues:
 
--if the genome name is too long, muscle will truncate it.  HashRF will then throw an error because
-the names don't match compared to the whole genome phylogeny. 
-
-*An additional script Phylomark_v1_1_R.py is included to provide more detailed analysis about
-nucleotide frequencies in each genomic fragment
+-if the genome name is too long, muscle will truncate it.  Dendropy will then throw an error because
+the names don't match compared to the whole genome phylogeny.
 
 -If there are dashes in your genome names, they get changed to underscores somewhere in the pipeline.
 While I'm trying to track down the source of the error, the current fix is to either remove dashes
-or replace them with underscores
+or replace them with underscores 
+
+*An additional script Phylomark_v1_1_R.py is included to provide more detailed analysis about
+nucleotide frequencies in each genomic fragment
 
 -Two new dependencies are required for this script:
 

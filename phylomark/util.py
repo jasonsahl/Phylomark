@@ -256,7 +256,6 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
     def _perform_workflow(data):
         tn, f = data
         logging.debugPrint(lambda : "Processing file: %s" % f)
-        #print tn, f
         blast_against_reference(f, combined, _temp_name(tn, "blast_parsed.txt"))
         subprocess.check_call("sort -u -k 2,2 %s > %s" % (_temp_name(tn, "blast_parsed.txt"),
                                                           _temp_name(tn, "blast_unique.parsed.txt")),
