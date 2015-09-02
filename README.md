@@ -79,12 +79,12 @@ is a table showing the base frequencies at each position in the alignment.  The 
 a .pdf showing a cluster dendrogram, and a plot showing the nucleotide conservation across
 the length of the fragment.  As this directory can fill up rapidly, I recommend that you use
 a larger step size (e.g. 10) and a larger fragment size (e.g. 800).  Then I would only look
-at the plots and tables for my best performing fragments.
+at the plots and tables for my best performing fragments. [Currently broken]
 
 -Output
 The two files that are of interest include:
 
-all_reads.fasta (all of your potential markers)
+seqs_shredded.txt (all of your potential markers)
 results.txt (a list of your markers and the RF values)
 
 To select markers that fall below your chosen RF threshold (30 in this case), you can to:

@@ -32,7 +32,7 @@ def test_options(option, opt_str, value, parser):
         print "option not supported.  Only select from T and F"
         sys.exit()
 
-def main(ref, genomes, tree, step_size, frag_length, parallel_workers, run_r):
+def main(ref, genes, genomes, tree, step_size, frag_length, parallel_workers, run_r):
     if "T" in run_r:
         try:
             os.makedirs('./R_output')
@@ -42,7 +42,7 @@ def main(ref, genomes, tree, step_size, frag_length, parallel_workers, run_r):
     else:
         pass
     if "T" in run_r:
-        rb = suprocess.call(['which', 'R'])
+        rb = subprocess.call(['which', 'R'])
         if rb == 0:
             pass
         else:
@@ -60,16 +60,19 @@ def main(ref, genomes, tree, step_size, frag_length, parallel_workers, run_r):
     genome_path = os.path.abspath("%s" % genomes)
     logging.logPrint("Prepping sequences")
     #Need to split reads from reference and also generate combined file
-    reads = split_sequence_by_window(ref, step_size, frag_length)
-    write_sequences(reads)
+    if "NULL" not in ref:
+        reads = split_sequence_by_window(ref, step_size, frag_length)
+        write_sequences(reads)
     process_fastas(genome_path, "combined.seqs")
     check_tree_and_reads("combined.seqs", tree)
     os.system("makeblastdb -in combined.seqs -dbtype nucl > /dev/null 2>&1")
     num_refs = get_ref_numbers("combined.seqs")
-    fastadir = split_seqs("seqs_shredded.txt")
+    if "NULL" not in ref:
+        fastadir = split_seqs("seqs_shredded.txt")
+    elif "NULL" not in genes:
+        fastadir = split_seqs(genes)
     logging.logPrint("Starting the loop")
     tree_loop(fastadir, "combined.seqs", tree, parallel_workers, run_r, num_refs)
-    os.system("rm mothur*")
     logging.logPrint("Loop finished")
     outfile = open("tmp.txt", "w")
     print >> outfile, "sequence\tRF\t#polymorphisms\tcontig_length"
@@ -86,8 +89,11 @@ if __name__ == "__main__":
     usage="usage: %prog [options]"
     parser = optparse.OptionParser(usage=usage)
     parser.add_option("-r", "--ref_file", dest="ref",
-                      help="/path/to/reference_genome [REQUIRED]",
-                      action="callback", callback=test_file, type="string")
+                      help="/path/to/reference_genome",
+                      action="callback", callback=test_file, type="string", default="NULL")
+    parser.add_option("-g", "--genes", dest="genes",
+                      help="/path/to/genes file, if desired",
+                      action="callback", callback=test_file, type="string", default="NULL")
     parser.add_option("-d", "--genome_directory", dest="genomes",
                       help="/path/to/genome_directory [REQUIRED]",
                       action="callback", callback=test_dir, type="string")
@@ -112,7 +118,7 @@ if __name__ == "__main__":
 
     options, args = parser.parse_args()
 
-    mandatories = ["ref", "genomes", "tree"]
+    mandatories = ["genomes", "tree"]
     for m in mandatories:
         if not getattr(options, m, None):
             print "\nMust provide %s.\n" %m
@@ -121,5 +127,5 @@ if __name__ == "__main__":
 
     logging.DEBUG = options.debug
 
-    main(options.ref, options.genomes, options.tree, options.step_size,
+    main(options.ref, options.genes, options.genomes, options.tree, options.step_size,
          options.frag_length, options.parallel_workers, options.run_r)

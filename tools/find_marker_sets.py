@@ -200,7 +200,6 @@ def main(directory, seqs, markers, tree, iterations):
             raise
     os.system("mv combined.seqs %s/scratch" % ap)
     os.chdir("%s/scratch" % ap)
-    #os.system("formatdb -i combined.seqs -p F")
     os.system("makeblastdb -in combined.seqs -dbtype nucl > /dev/null 2>&1")
     run_loop(seq_path, markers, ap, tree_path, iterations)
     os.system("cp marker_results.txt %s" % ap)
