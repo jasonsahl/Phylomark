@@ -21,17 +21,17 @@ To make this permanent, add this to your .bashrc or .profile
 
 Dependencies
 
-*Biopython (www.biopython.org) #in .bashrc, point PYTHONPATH variable to Bio location
+1. Biopython (www.biopython.org) #in .bashrc, point PYTHONPATH variable to Bio location
  (e.g. PYTHONPATH=/home/jsahl/biopython-1.53:$PYTHONPATH; export PYTHONPATH)
-*bx-python-tools (https://bitbucket.org/james_taylor/bx-python/wiki/Home) #add to PYTHONPATH
+2. bx-python-tools (https://bitbucket.org/james_taylor/bx-python/wiki/Home) #add to PYTHONPATH
  (e.g. PYTHONPATH=/home/jsahl/bx-python-central/lib:$PYTHONPATH; export PYTHONPATH)
-*HashRF (http://code.google.com/p/hashrf/)
+3. HashRF (http://code.google.com/p/hashrf/)
 
-*the following scripts are included with Phylomark.  If you have an architecture different
+the following scripts are included with Phylomark.  If you have an architecture different
 than i86linux64, then you may need to re-compile on your system
-*FastTree (http://www.microbesonline.org/fasttree/)
-*mothur (http://www.mothur.org)
-*muscle (http://www.drive5.com/muscle/)
+1. FastTree (http://www.microbesonline.org/fasttree/)
+2. mothur (http://www.mothur.org)
+3. muscle (http://www.drive5.com/muscle/)
 
 Phylomark requires 3 files to run correctly:
 
