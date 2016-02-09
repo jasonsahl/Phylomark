@@ -95,7 +95,7 @@ if __name__ == "__main__":
                       help="/path/to/genes file, if desired",
                       action="callback", callback=test_file, type="string", default="NULL")
     parser.add_option("-d", "--genome_directory", dest="genomes",
-                      help="/path/to/genome_directory [REQUIRED]",
+                      help="/path/to/genome_directory, files ending in .fasta [REQUIRED]",
                       action="callback", callback=test_dir, type="string")
     parser.add_option("-t", "--tree", dest="tree",
                       help="/path/to/reference_tree [REQUIRED]",

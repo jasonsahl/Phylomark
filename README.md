@@ -61,7 +61,7 @@ the names don't match compared to the whole genome phylogeny.
 
 -If there are dashes in your genome names, they get changed to underscores somewhere in the pipeline.
 While I'm trying to track down the source of the error, the current fix is to either remove dashes
-or replace them with underscores 
+or replace them with underscores
 
 *An additional script Phylomark_v1_1_R.py is included to provide more detailed analysis about
 nucleotide frequencies in each genomic fragment
@@ -96,7 +96,7 @@ For this you can do:
 
 python find_marker_sets.py -d genomes/ -s tmp.fasta -t wga.tree 
 
-The "-d" flag points to a directory of your genomes in FASTA (*.fas) format.  The "-t"
+The "-d" flag points to a directory of your genomes in FASTA (*.fasta) format.  The "-t"
 flag points to the WGA tree used in Phylomark.  You can set the number of markers to test
 ("-m" flag, default is 3), and the number of random iterations ("-i" flag, default is 20).
 
