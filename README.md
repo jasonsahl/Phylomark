@@ -100,6 +100,7 @@ python find_marker_sets.py -d genomes/ -s tmp.fasta -t wga.tree
 The "-d" flag points to a directory of your genomes in FASTA (*.fasta) format.  The "-t"
 flag points to the WGA tree used in Phylomark.  You can set the number of markers to test
 ("-m" flag, default is 3), and the number of random iterations ("-i" flag, default is 20).
+The "-s" flag points to a set of sequences. These should be filtered based on the Phylomark output.
 
 The resulting file ("marker_results.txt") has the IDs of your markers and the resulting
 RF value.  For example if you have three markers, your output would look like:
