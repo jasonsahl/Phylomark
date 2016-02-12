@@ -9,11 +9,16 @@ contact: jasonsahl@gmail.com
 v_1_2: fixed potential problem with read orientation prior to fragment alignment
 v_1_3: fixed the script structure, added additional scripts and README details
 v_1_4: Huge overhaul. Blastall changed to blast+. Took away the need for using MUGSY
-       alignments. Now scales better to hundreds to thousands of genomes
+       alignments. Now scales better to hundreds to thousands of genomes. Command
+       line arguments are completely different
 
 -to install Phylomark, enter the directory and type:
 
-python setup.py install
+(sudo) python setup.py install
+
+-If you don't have sudo privalages, try:
+
+python setup.py install --user
 
 Then set your PYTHONPATH to include Phylomark
 
@@ -87,14 +92,10 @@ The two files that are of interest include:
 seqs_shredded.txt (all of your potential markers)
 results.txt (a list of your markers and the RF values)
 
-To select markers that fall below your chosen RF threshold (30 in this case), you can to:
-
-python tools/filter_phylomark_output.py -i all_reads.fasta -d results.txt -o tmp.fasta -r 30
-
 Now you might be interested in combinations of markers that give you the lowest RF value.
 For this you can do:
 
-python find_marker_sets.py -d genomes/ -s tmp.fasta -t wga.tree 
+python find_marker_sets.py -d genomes/ -s tmp.fasta -t wga.tree
 
 The "-d" flag points to a directory of your genomes in FASTA (*.fasta) format.  The "-t"
 flag points to the WGA tree used in Phylomark.  You can set the number of markers to test

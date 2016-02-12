@@ -101,13 +101,13 @@ def format_blast_database(ref_file):
 
 def blast_against_reference(blast_in, combined, outfile):
     try:
-        os.system('blastn -task blastn -query %s -db %s -out %s -dust no -num_alignments 2000 -outfmt "7 std sseq"' % (blast_in,combined,outfile))
+        #print 'blastn -query %s -db %s -out %s -dust no -num_alignments 2000 -outfmt "7 std sseq"' % (blast_in,combined,outfile)
+        os.system('blastn -query %s -db %s -out %s -dust no -num_alignments 2000 -outfmt "7 std sseq"' % (blast_in,combined,outfile))
     except:
         print "blast problem!"
 
 def blast_against_single(blast_in, ref, blast_type):
     cmd = ["blastn",
-           "-task", "blastn",
            "-query", blast_in,
            "-db", ref,
            "-dust", "no",
