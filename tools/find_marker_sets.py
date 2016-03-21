@@ -12,6 +12,7 @@ import os
 import subprocess
 import random
 import errno
+import dendropy
 
 def get_seq_name(fasta_in):
     name = os.path.basename(fasta_in)
@@ -22,7 +23,7 @@ def split_multi_fasta(fasta_in):
     for record in SeqIO.parse(open(fasta_in, "U"), "fasta"):
         f_out = os.path.join(curr_dir,record.id+'.fasta')
         SeqIO.write([record],open(f_out,'w'),"fasta")
-    
+
 def combine_seqs(dir_path):
     handle = open("combined.seqs", "w")
     for infile in glob.glob(os.path.join(dir_path, '*.fasta')):
@@ -32,52 +33,37 @@ def combine_seqs(dir_path):
         for record in SeqIO.parse(open(infile), "fasta"):
             print >> handle, record.seq
     handle.close()
-     
+
 def run_blast(infile):
     names = get_seq_name(infile)
     reduced = names.replace('.fasta','')
-    cmd = ["blastall",
-            "-p", "blastn",
-            "-i", infile,
-            "-d", "combined.seqs",
-            "-o", "%s.blast.out" % reduced,
-            "-m", "7",
-            "-b", "2000",
-            "-v", "2000",
-            "-q", "-4",
-            "-r", "5",
-            "-a", "8",
-            "-F", "F"]
-    subprocess.check_call(cmd)
+    os.system('blastn -query %s -db combined.seqs -out %s.blast.out -dust no -num_alignments 2000 -outfmt "7 std sseq"' % (infile,reduced))
+    try:
+        subprocess.check_call("sort -u -k 2,2 %s.blast.out > %s.blast.unique" % (reduced,reduced), shell=True)
+    except:
+        print "%s not produced" % reduced
 
-def parse_blast_xml_report(blast_output):
-    """uses biopython to split the output
-    from a blast file with xml output"""
-    names = get_seq_name(blast_output)
-    reduced = names.replace('.blast.out','')
-    result_handle = open(blast_output, "U")
-    blast_records = NCBIXML.parse(result_handle)
-    blast_record = blast_records.next()    
-    handle = open("%s.blast.parsed" % reduced, "w") 
-    for alignment in blast_record.alignments:
-        for hsp in alignment.hsps:
-            test = Seq(hsp.sbjct)
-            if int(hsp.query_start)<int(hsp.query_end):
-                print >> handle, ">", alignment.title, test
-            if int(hsp.query_start)>int(hsp.query_end):
-                print >> handle, ">", alignment.title, test.reverse_complement()
+    #cmd = ["blastn",
+    #        "-query", infile,
+    #        "-db", "combined.seqs",
+    #        "-o", "%s.blast.out" % reduced,
+    #        "-outfmt", "7",
+    #        "-num_alignments", "2000",
+    #        "-num_threads", "4",
+    #        "-dust", "no"]
+    #subprocess.check_call(cmd)
+
+def parsed_blast_to_seqs(parsed_file, outfile):
+    infile = open(parsed_file, "rU")
+    handle = open(outfile, "w")
+    for line in infile:
+        if line.startswith("#"):
+            pass
+        else:
+            fields = line.split()
+            print >> handle, ">"+str(fields[1])
+            print >> handle, fields[12]
     handle.close()
-    result_handle.close()
-    os.system("sort -u -k 3,3 %s.blast.parsed > %s.blast.unique" % (reduced, reduced))
-        
-def parsed_blast_to_seqs(parsed):
-    names = get_seq_name(parsed)
-    reduced = names.replace('.blast.unique','')
-    outfile = open("%s.extracted.seqs" % reduced, "w")
-    for line in open(parsed, "U"):
-        fields = line.split(" ")
-        print >> outfile, fields[0] + fields[2], "\n", fields[3],
-    outfile.close()
 
 def get_names(fasta_file):
    names = [ ]
@@ -92,7 +78,7 @@ def split_files():
         reduced = names.replace('.extracted.seqs','')
         names = get_names(infile)
         for name in names:
-            handle = open("%s.seqs.fasta" % name, "a") 
+            handle = open("%s.seqs.fasta" % name, "a")
             for record in SeqIO.parse(open(infile), "fasta"):
                 if name == record.id:
                     print >> handle, ">"+str(record.id)
@@ -102,7 +88,7 @@ def split_files():
 def process_fastas():
     curr_dir=os.getcwd()
     for infile in glob.glob(os.path.join(curr_dir, '*seqs.fasta')):
-        handle = open("%s.concat" % infile, "w") 
+        handle = open("%s.concat" % infile, "w")
         names = get_seq_name(infile)
         print >> handle, ">"+str(names),"\n",
         for record in SeqIO.parse(open(infile), "fasta"):
@@ -123,14 +109,16 @@ def select_random_seqs(seq_path, markers):
                 seqrecords.append(record)
         SeqIO.write(seqrecords, outfile, "fasta")
         outfile.close()
-        
-def parse_hashrf_file(infile):
-    for line in open(infile, "U"):
-        if "<0,1>" in line:
-            fields = line.split(" ")
-            rf = fields[1]
-    return rf
-    handle.close()
+
+def parse_rf_file(infile):
+    #handle = open(outfile, "a")
+    RF = []
+    for line in open(infile):
+        newline = line.strip()
+        #print >> handle, line,
+        RF.append(newline)
+    #handle.close()
+    return RF
 
 def test_dir(option, opt_str, value, parser):
     if os.path.exists(value):
@@ -145,6 +133,13 @@ def test_file(option, opt_str, value, parser):
     except IOError:
         print '%s file cannot be opened' % option
         sys.exit()
+
+def run_dendropy(tmp_tree, wga_tree, outfile):
+    out = open(outfile, "w")
+    tree_one = dendropy.Tree.get_from_path(wga_tree,schema="newick",preserve_underscores=True)
+    tree_two = dendropy.Tree.get_from_path(tmp_tree,schema="newick",preserve_underscores=True, taxon_set=tree_one.taxon_set)
+    RFs = tree_one.symmetric_difference(tree_two)
+    print >> out, RFs
 
 def run_loop(seq_path, markers, start_dir, tree_path, iterations):
     all_seqs = [ ]
@@ -169,11 +164,12 @@ def run_loop(seq_path, markers, start_dir, tree_path, iterations):
         split_multi_fasta(infile)
         for my_file in glob.glob(os.path.join(new_dir, '*.fasta')):
             run_blast(my_file)
-        for blast_output in glob.glob(os.path.join(new_dir, '*blast.out')):
-            parse_blast_xml_report(blast_output)
+        #for blast_output in glob.glob(os.path.join(new_dir, '*blast.out')):
+        #    parse_blast_xml_report(blast_output)
         for parsed in glob.glob(os.path.join(new_dir, '*blast.unique')):
-            parsed_blast_to_seqs(parsed)
-        os.system("rm *.blast.out *.blast.parsed *.blast.unique")
+            reduced = parsed.replace(".blast.unique","")
+            parsed_blast_to_seqs(parsed, "%s.extracted.seqs" % reduced)
+        os.system("rm *.blast.out *.blast.unique")
         split_files()
         process_fastas()
         os.system("cat *.seqs.fasta.concat > tmp_concatenated")
@@ -183,12 +179,13 @@ def run_loop(seq_path, markers, start_dir, tree_path, iterations):
         os.system("muscle -in reduced_concatenated -out all_concatenated_aligned.fasta > /dev/null 2>&1")
         os.system("FastTree -nt -noboot all_concatenated_aligned.fasta > tmp.tree 2> /dev/null")
         os.system("cat %s %s > combined.tree" % (tree_path, "tmp.tree"))
-        os.system("hashrf %s 2 -p list -o %s > /dev/null 2>&1" % ("combined.tree", "result.rf"))
-        rf=parse_hashrf_file("result.rf")
-        print >> out_results,"\t".join(headers),"\t",rf,
+        #os.system("hashrf %s 2 -p list -o %s > /dev/null 2>&1" % ("combined.tree", "result.rf"))
+        run_dendropy("tmp.tree", "combined.tree", "result.rf")
+        rf = parse_rf_file("result.rf")
+        print >> out_results,"\t".join(headers),"\t","".join(rf),"\n",
         print "%s processed" % name
         os.system("rm *fasta* tmp_concatenated all_concatenated")
-        
+
 def main(directory, seqs, markers, tree, iterations):
     dir_path=os.path.abspath("%s" % directory)
     seq_path=os.path.abspath("%s" % seqs)
@@ -203,12 +200,12 @@ def main(directory, seqs, markers, tree, iterations):
             raise
     os.system("mv combined.seqs %s/scratch" % ap)
     os.chdir("%s/scratch" % ap)
-    os.system("formatdb -i combined.seqs -p F")
+    os.system("makeblastdb -in combined.seqs -dbtype nucl > /dev/null 2>&1")
     run_loop(seq_path, markers, ap, tree_path, iterations)
     os.system("cp marker_results.txt %s" % ap)
     os.chdir(ap)
     os.system('rm -rf %s/scratch' % ap)
-    
+
 if __name__ == "__main__":
     usage="usage: %prog [options]"
     parser = optparse.OptionParser(usage=usage)
@@ -228,7 +225,7 @@ if __name__ == "__main__":
                       help="number of iterations to process, defaults to 20",
                       type="int", action="store", default="20")
     options, args = parser.parse_args()
-    
+
     mandatories = ["directory", "seqs", "tree"]
     for m in mandatories:
         if not getattr(options, m, None):
