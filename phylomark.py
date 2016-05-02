@@ -89,10 +89,10 @@ if __name__ == "__main__":
     usage="usage: %prog [options]"
     parser = optparse.OptionParser(usage=usage)
     parser.add_option("-r", "--ref_file", dest="ref",
-                      help="/path/to/reference_genome",
+                      help="/path/to/reference_genome [optional], use if genes not used",
                       action="callback", callback=test_file, type="string", default="NULL")
     parser.add_option("-g", "--genes", dest="genes",
-                      help="/path/to/genes file, if desired",
+                      help="/path/to/genes file, if desired [optional], use if reference not used",
                       action="callback", callback=test_file, type="string", default="NULL")
     parser.add_option("-d", "--genome_directory", dest="genomes",
                       help="/path/to/genome_directory, files ending in .fasta [REQUIRED]",
@@ -101,10 +101,10 @@ if __name__ == "__main__":
                       help="/path/to/reference_tree [REQUIRED]",
                       action="callback", callback=test_file, type="string")
     parser.add_option("-s", "--step", dest="step_size",
-                      help="step size for shredding sequences",
+                      help="step size for shredding sequences, defaults to 5",
                       default="5", type="int")
     parser.add_option("-l", "--frag_length", dest="frag_length",
-                      help="shred sequences into given length",
+                      help="shred sequences into given length, defaults to 500",
                       default="500", type="int")
     parser.add_option("-p", "--parallel_workers", dest="parallel_workers",
                       help="How much work to do in parallel, defaults to 2, should number of CPUs your machine has",
