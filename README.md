@@ -7,10 +7,10 @@ contact: jasonsahl@gmail.com
 #Changelog:
 
 v_1_2: fixed potential problem with read orientation prior to fragment alignmenti
+
 v_1_3: fixed the script structure, added additional scripts and README details
-v_1_4: Huge overhaul. Blastall changed to blast+. Took away the need for using MUGSY
-       alignments. Now scales better to hundreds to thousands of genomes. Command
-       line arguments are completely different
+
+v_1_4: Huge overhaul. Blastall changed to blast+. Took away the need for using MUGSY alignments. Now scales better to hundreds to thousands of genomes. Command line arguments are completely different
 
 -to install Phylomark, enter the directory and type:
 
