@@ -28,15 +28,18 @@ To make this permanent, add this to your .bashrc or .profile
 
 -Dependencies
 
--Biopython (www.biopython.org) #in .bashrc, point PYTHONPATH variable to Bio location
- (e.g. PYTHONPATH=/home/jsahl/biopython-1.53:$PYTHONPATH; export PYTHONPATH)
- -blast+, can be obtained from NCBI
+-Biopython (www.biopython.org) #in .bashrc, point PYTHONPATH variable to Bio location (e.g. PYTHONPATH=/home/jsahl/biopython-1.53:$PYTHONPATH; export PYTHONPATH)
 
--the following scripts are included with Phylomark.  If you have an architecture different
-than i86linux64, then you may need to re-compile on your system
+-blast+, can be obtained from NCBI
+
+-the following scripts are included with Phylomark.  If you have an architecture different than i86linux64, then you may need to re-compile on your system:
+
 -FastTree (http://www.microbesonline.org/fasttree/)
+
 -mothur (http://www.mothur.org)
+
 -muscle (http://www.drive5.com/muscle/)
+
 -Dendropy (see the end of this document for license information)
 
 Phylomark requires 3 arguments to run correctly:
@@ -45,14 +48,13 @@ Phylomark requires 3 arguments to run correctly:
 2. directory of genomes that went into your phylogeny
 3. Reference genome from one isolate from the whole genome alignment
 
--Now you want to alter the file, phylomark_env.sh, to set the Phylomark_DIR environment variable.
-Then you can set the environment by:
+-Now you want to alter the file, phylomark_env.sh, to set the Phylomark_DIR environment variable. Then you can set the environment by:
 
-source phylomark_env.sh
+>source phylomark_env.sh
 
 Once the files are generated and your environment is correct, Phylomark can be run by:
 
->phylomark.py -r <reference genome> -d <genome directory> -t <wga.tree>
+>phylomark.py -r reference_genome -d genome_directory -t wga.tree
 
 Other parameters that can be changed include:
 -s : step_size (integer).  The sliding window will move this many bases
