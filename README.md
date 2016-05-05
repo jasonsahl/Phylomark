@@ -75,7 +75,7 @@ nucleotide frequencies in each genomic fragment
 
 -Two new dependencies are required for this script:
 
-R (tested version = 2.14.1 - R v3 appears to not be supported at this time)
+R (tested version = 2.14.1)
 bioStrings (http://www.bioconductor.org/packages/release/bioc/html/Biostrings.html)
 
 -The snps.r script must be in the same directory as your other input files
@@ -91,13 +91,12 @@ at the plots and tables for my best performing fragments. [Currently broken]
 -Output
 The two files that are of interest include:
 
-seqs_shredded.txt (all of your potential markers)
-results.txt (a list of your markers and the RF values)
+1. seqs_shredded.txt (all of your potential markers)
+2. results.txt (a list of your markers and the RF values)
 
-Now you might be interested in combinations of markers that give you the lowest RF value.
-For this you can do:
+Now you might be interested in combinations of markers that give you the lowest RF value.For this you can do:
 
-python find_marker_sets.py -d genomes/ -s tmp.fasta -t wga.tree
+>python find_marker_sets.py -d genomes/ -s tmp.fasta -t wga.tree
 
 The "-d" flag points to a directory of your genomes in FASTA (*.fasta) format.  The "-t"
 flag points to the WGA tree used in Phylomark.  You can set the number of markers to test
@@ -107,6 +106,7 @@ The resulting file ("marker_results.txt") has the IDs of your markers and the re
 RF value.  For example if you have three markers, your output would look like:
 
 2018    2057    2523    32
+
 864     867     2056    31
 
 In this case, the markers 864, 867, 2056 produce the lowest RF values.  The sequence
