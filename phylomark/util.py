@@ -101,7 +101,6 @@ def format_blast_database(ref_file):
 
 def blast_against_reference(blast_in, combined, outfile):
     try:
-        #print 'blastn -query %s -db %s -out %s -dust no -num_alignments 2000 -outfmt "7 std sseq"' % (blast_in,combined,outfile)
         os.system('blastn -task blastn -query %s -db %s -out %s -dust no -num_alignments 2000 -outfmt "7 std sseq"' % (blast_in,combined,outfile))
     except:
         print "blast problem!"
@@ -335,7 +334,6 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, run_r, num_refs):
     subprocess.call("rm distance.txt name.txt polys.txt length.txt", shell=True, stderr=open(os.devnull, 'w'))
 
     for files in func.chunk(5, results):
-        #print files
         distances = []
         names = []
         polys = []
@@ -388,26 +386,6 @@ def merge_files_by_column(column, file_1, file_2, out_file):
         fout.write('\t'.join([k] + v) + '\n')
 
     fout.close()
-
-def cleanup_tmpdirs(fastadir):
-    subprocess.check_call(["rm", "-rf", fastadir])
-
-def parse_blast_xml_report(blast_file, outfile):
-    """uses biopython to split the output
-    from a blast file with xml output"""
-    result_handle = open(blast_file)
-    blast_records = NCBIXML.parse(result_handle)
-    blast_record = blast_records.next()
-    handle = open(outfile, "w")
-    for alignment in blast_record.alignments:
-         for hsp in alignment.hsps:
-             test = Seq(hsp.sbjct)
-             if int(hsp.query_start)<int(hsp.query_end):
-                 print >> handle, ">", alignment.title, test
-             if int(hsp.query_start)>int(hsp.query_end):
-                 print >> handle, ">", alignment.title, test.reverse_complement()
-    handle.close()
-    result_handle.close()
 
 def parsed_blast_to_seqs(parsed_file, outfile):
     infile = open(parsed_file, "rU")

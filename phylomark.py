@@ -49,6 +49,9 @@ def main(ref, genes, genomes, tree, step_size, frag_length, parallel_workers, ru
             print "R is not in your path, but needs to be!"
             sys.exit()
     dependencies = ['mothur','muscle','FastTree','blastn','makeblastdb','mothur']
+    if "NULL" not in ref and "NULL" not in genes:
+        logging.logPrint("You can't select both genes and a reference sequence..exiting")
+        sys.exit()
     logging.logPrint("Checking the path of dependencies")
     for dependency in dependencies:
         ra = subprocess.call(['which', '%s' % dependency])
@@ -68,14 +71,16 @@ def main(ref, genes, genomes, tree, step_size, frag_length, parallel_workers, ru
         for k,v in fasta_dict.iteritems():
             outfile.write(">%s\n%s\n" % (k,v))
         outfile.close()
-    logging.logPrint("Number of sequences to process = %s" % len(fasta_dict))
     process_fastas(genome_path, "combined.seqs")
     check_tree_and_reads("combined.seqs", tree)
     os.system("makeblastdb -in combined.seqs -dbtype nucl > /dev/null 2>&1")
     num_refs = get_ref_numbers("combined.seqs")
     """This function will likely need to be also changed if gene sequences are to be used"""
     if "NULL" not in genes:
-        fastadir = split_seqs(genes)
+        fasta_dict = {}
+        for record in SeqIO.parse(open(genes), "fasta"):
+            fasta_dict.update({record.id:record.seq})
+    logging.logPrint("Number of sequences to process = %s" % len(fasta_dict))
     logging.logPrint("Starting the loop")
     tree_loop(fasta_dict, "combined.seqs", tree, parallel_workers, run_r, num_refs)
     logging.logPrint("Loop finished")
