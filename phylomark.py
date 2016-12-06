@@ -62,17 +62,22 @@ def main(ref, genes, genomes, tree, step_size, frag_length, parallel_workers, ru
     #Need to split reads from reference and also generate combined file
     if "NULL" not in ref:
         reads = split_sequence_by_window(ref, step_size, frag_length)
-        write_sequences(reads)
+        #This is a dictionary of ID:read for the reference sequence
+        fasta_dict = read_sequences(reads)
+        outfile = open("query_sequences.fasta", "w")
+        for k,v in fasta_dict.iteritems():
+            outfile.write(">%s\n%s\n" % (k,v))
+        outfile.close()
+    logging.logPrint("Number of sequences to process = %s" % len(fasta_dict))
     process_fastas(genome_path, "combined.seqs")
     check_tree_and_reads("combined.seqs", tree)
     os.system("makeblastdb -in combined.seqs -dbtype nucl > /dev/null 2>&1")
     num_refs = get_ref_numbers("combined.seqs")
-    if "NULL" not in ref:
-        fastadir = split_seqs("seqs_shredded.txt")
-    elif "NULL" not in genes:
+    """This function will likely need to be also changed if gene sequences are to be used"""
+    if "NULL" not in genes:
         fastadir = split_seqs(genes)
     logging.logPrint("Starting the loop")
-    tree_loop(fastadir, "combined.seqs", tree, parallel_workers, run_r, num_refs)
+    tree_loop(fasta_dict, "combined.seqs", tree, parallel_workers, run_r, num_refs)
     logging.logPrint("Loop finished")
     outfile = open("tmp.txt", "w")
     print >> outfile, "sequence\tRF\t#polymorphisms\tcontig_length"
@@ -80,10 +85,9 @@ def main(ref, genes, genomes, tree, step_size, frag_length, parallel_workers, ru
     os.system("cat tmp.txt all_distances.txt > results.txt")
     logging.logPrint("Cleaning up")
     try:
-        subprocess.check_call("rm length.txt distance.txt name.txt polys.txt tmp.txt all_distances.txt", shell=True)
+        subprocess.check_call("rm length.txt distance.txt name.txt polys.txt tmp.txt all_distances.txt combined.seqs*", shell=True)
     except:
         sys.exc_clear()
-    cleanup_tmpdirs(fastadir)
 
 if __name__ == "__main__":
     usage="usage: %prog [options]"

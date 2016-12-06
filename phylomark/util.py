@@ -228,6 +228,12 @@ def write_sequences(reads):
         print >> handle, ">%d\n%s" % (record_count_1.next(), read)
     handle.close()
 
+def read_sequences(reads):
+    read_dict = {}
+    for read in reads:
+        read_dict.update({"%d" % record_count_1.next():"%s" % read})
+    return read_dict
+
 def run_dendropy(tmp_tree, wga_tree, outfile):
     out = open(outfile, "w")
     tree_one = dendropy.Tree.get_from_path(wga_tree,schema="newick",preserve_underscores=True)
@@ -237,8 +243,6 @@ def run_dendropy(tmp_tree, wga_tree, outfile):
 
 def check_and_align_seqs(infile, num_genomes, outfile):
     lengths = [ ]
-    #names = get_seq_name(infile)
-    #reduced = names.replace('.extracted.seqs','')
     for record in SeqIO.parse(infile, "fasta"):
         lengths.append(len(record.seq))
     lengths.sort(key=int)
@@ -250,14 +254,17 @@ def check_and_align_seqs(infile, num_genomes, outfile):
     except:
         pass
 
-def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
+def tree_loop(fasta_dict, combined, tree, parallel_workers, run_r, num_refs):
     def _temp_name(t, f):
         return t + '_' + f
 
     def _perform_workflow(data):
         tn, f = data
-        logging.debugPrint(lambda : "Processing file: %s" % f)
-        blast_against_reference(f, combined, _temp_name(tn, "blast_parsed.txt"))
+        outfile = open("%s.fasta" % tn, "w")
+        outfile.write(">%s\n%s" % (tn,f))
+        outfile.close()
+        logging.debugPrint(lambda : "Processing sequence: %s" % tn)
+        blast_against_reference("%s.fasta" % tn, combined, _temp_name(tn, "blast_parsed.txt"))
         subprocess.check_call("sort -u -k 2,2 %s > %s" % (_temp_name(tn, "blast_parsed.txt"),
                                                           _temp_name(tn, "blast_unique.parsed.txt")),
                               shell=True)
@@ -271,7 +278,7 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
             split_read(_temp_name(tn, "mask.txt"),_temp_name(tn, "padded.txt"))
             sum_qual_reads(_temp_name(tn, "padded.txt"), _temp_name(tn,"polys.txt"))
             if "T" == run_r:
-                name = get_seq_name(f)
+                name = get_seq_name("%s.fasta" % tn)
                 subprocess.check_call("cat snps.r | R --slave --args %s %s.table %s.pdf 2> /dev/null" % (_temp_name(tn, "seqs_aligned.fas"), name, name),
         					      shell=True)
                 os.system("mv %s.table ./R_output/%s.table.txt" % (name, name))
@@ -282,12 +289,12 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
                                                                                  _temp_name(tn, "tmp.tree")),
                                   shell=True)
             run_dendropy("%s" % (_temp_name(tn, "tmp.tree")), tree, "%s" % (_temp_name(tn, "tmp.RF")))
-            get_contig_length(f, _temp_name(tn, "length.txt"))
+            get_contig_length("%s.fasta" % tn, _temp_name(tn, "length.txt"))
             thread_id = id(threading.current_thread())
             thread_distance_file = str(thread_id) + '_distance.txt'
             parse_rf_file(_temp_name(tn, "tmp.RF"), thread_distance_file)
             thread_name_file = str(thread_id) + '_name.txt'
-            write_strip_name(f, thread_name_file)
+            write_strip_name("%s.fasta" % tn, thread_name_file)
             polys_name_file = str(thread_id) + '_polys.txt'
             parse_poly_file(_temp_name(tn, "polys.txt"), polys_name_file)
             length_name_file = str(thread_id) + '_length.txt'
@@ -298,6 +305,7 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
                 pass
             subprocess.check_call(["rm",
                                    _temp_name(tn, "blast_parsed.txt"),
+                                   "%s.fasta" % tn,
                                    _temp_name(tn, "blast_unique.parsed.txt"),
                                    _temp_name(tn, "seqs_in.fas"),
                                    _temp_name(tn, "seqs_aligned.fas"),
@@ -313,13 +321,12 @@ def tree_loop(fastadir, combined, tree, parallel_workers, run_r, num_refs):
         else:
             subprocess.check_call(["rm",
                                    _temp_name(tn, "blast_parsed.txt"),
+                                   "%s.fasta" % tn,
                                    _temp_name(tn, "blast_unique.parsed.txt"),
                                    _temp_name(tn, "seqs_in.fas")])
 
-    files = os.listdir(fastadir)
-    files_and_temp_names = [(str(idx), os.path.join(fastadir, f))
-                            for idx, f in enumerate(files)]
-
+    files_and_temp_names = [(str(idx), f)
+                             for idx, f in fasta_dict.iteritems()]
     results = set(p_func.pmap(_perform_workflow,
                               files_and_temp_names,
                               num_workers=parallel_workers))
