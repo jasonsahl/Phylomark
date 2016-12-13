@@ -302,20 +302,20 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, run_r, num_refs):
                 subprocess.check_call("rm mothur*", shell=True, stderr=open(os.devnull, 'w'))
             except:
                 pass
-            subprocess.check_call(["rm",
-                                   _temp_name(tn, "blast_parsed.txt"),
-                                   "%s.fasta" % tn,
-                                   _temp_name(tn, "blast_unique.parsed.txt"),
-                                   _temp_name(tn, "seqs_in.fas"),
-                                   _temp_name(tn, "seqs_aligned.fas"),
-                                   _temp_name(tn, "tmp.tree"),
-                                   _temp_name(tn, "tmp.RF"),
-                                   _temp_name(tn, "mask.txt"),
-                                   _temp_name(tn, "padded.txt"),
-                                   _temp_name(tn, "polys.txt"),
-                                   _temp_name(tn, "seqs_aligned.filter"),
-                                   _temp_name(tn, "length.txt"),
-                                   _temp_name(tn, "seqs_aligned.filter.fasta")])
+            #subprocess.check_call(["rm",
+            #                       _temp_name(tn, "blast_parsed.txt"),
+            #                       "%s.fasta" % tn,
+            #                       _temp_name(tn, "blast_unique.parsed.txt"),
+            #                       _temp_name(tn, "seqs_in.fas"),
+            #                       _temp_name(tn, "seqs_aligned.fas"),
+            #                       _temp_name(tn, "tmp.tree"),
+            #                       _temp_name(tn, "tmp.RF"),
+            #                       _temp_name(tn, "mask.txt"),
+            #                       _temp_name(tn, "padded.txt"),
+            #                       _temp_name(tn, "polys.txt"),
+            #                       _temp_name(tn, "seqs_aligned.filter"),
+            #                       _temp_name(tn, "length.txt"),
+            #                       _temp_name(tn, "seqs_aligned.filter.fasta")])
             return (thread_distance_file, thread_name_file, polys_name_file, length_name_file)
         else:
             subprocess.check_call(["rm",
