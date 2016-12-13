@@ -71,7 +71,10 @@ def main(ref, genes, genomes, tree, step_size, frag_length, parallel_workers, ru
         for k,v in fasta_dict.iteritems():
             outfile.write(">%s\n%s\n" % (k,v))
         outfile.close()
-    process_fastas(genome_path, "combined.seqs")
+    if os.path.isfile("combined.seqs"):
+        pass
+    else:
+        process_fastas(genome_path, "combined.seqs")
     check_tree_and_reads("combined.seqs", tree)
     os.system("makeblastdb -in combined.seqs -dbtype nucl > /dev/null 2>&1")
     num_refs = get_ref_numbers("combined.seqs")
