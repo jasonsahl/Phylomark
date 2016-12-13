@@ -318,12 +318,11 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, run_r, num_refs):
             #                       _temp_name(tn, "seqs_aligned.filter.fasta")])
             return (thread_distance_file, thread_name_file, polys_name_file, length_name_file)
         else:
-            pass
-            #subprocess.check_call(["rm",
-            #                       _temp_name(tn, "blast_parsed.txt"),
-            #                       "%s.fasta" % tn,
-            #                       _temp_name(tn, "blast_unique.parsed.txt"),
-            #                       _temp_name(tn, "seqs_in.fas")])
+            subprocess.check_call(["rm",
+                                   _temp_name(tn, "blast_parsed.txt"),
+                                   "%s.fasta" % tn,
+                                   _temp_name(tn, "blast_unique.parsed.txt"),
+                                   _temp_name(tn, "seqs_in.fas")])
 
     files_and_temp_names = [(str(idx), f)
                              for idx, f in fasta_dict.iteritems()]
