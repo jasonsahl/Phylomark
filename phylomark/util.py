@@ -270,6 +270,7 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, run_r, num_refs):
         parsed_blast_to_seqs(_temp_name(tn, "blast_unique.parsed.txt"), _temp_name(tn, "seqs_in.fas"))
         check_and_align_seqs(_temp_name(tn, "seqs_in.fas"), num_refs, _temp_name(tn, "seqs_aligned.fas"))
         if os.path.isfile(_temp_name(tn, "seqs_aligned.fas")):
+            """What if there are NO SNPs in a given region"""
             subprocess.call(['mothur',
                                    '#filter.seqs(fasta=%s, soft=100, vertical=F)' % _temp_name(tn, "seqs_aligned.fas")], stdout=subprocess.PIPE)
             subprocess.check_call('sed "s/[^1]/0/g" %s | sed "s/0/2/g" | sed "s/1/0/g" | sed "s/2/1/g" > %s' % (_temp_name(tn, "seqs_aligned.filter"),
