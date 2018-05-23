@@ -4,13 +4,15 @@ Phylomark - a tool to find phylogenetic markers from whole genome alignments***
 
 contact: jasonsahl@gmail.com
 
-#Changelog:
+### Changelog:
 
 v_1_2: fixed potential problem with read orientation prior to fragment alignmenti
 
 v_1_3: fixed the script structure, added additional scripts and README details
 
 v_1_4: Huge overhaul. Blastall changed to blast+. Took away the need for using MUGSY alignments. Now scales better to hundreds to thousands of genomes. Command line arguments are completely different
+
+### Installation:
 
 -to install Phylomark, enter the directory and type:
 
@@ -26,7 +28,7 @@ export PYTHOPATH=/Users/jsahl/Phylomark:$PYTHONPATH
 
 To make this permanent, add this to your .bashrc or .profile
 
--Dependencies
+## Dependencies:
 
 -Biopython (www.biopython.org) #in .bashrc, point PYTHONPATH variable to Bio location (e.g. PYTHONPATH=/home/jsahl/biopython-1.53:$PYTHONPATH; export PYTHONPATH)
 
@@ -42,6 +44,8 @@ To make this permanent, add this to your .bashrc or .profile
 
 -Dendropy (see the end of this document for license information)
 
+### Running Phylomark:
+
 Phylomark requires 3 arguments to run correctly:
 
 1. whole genome phylogeny (can be generated with multiple methods)
@@ -50,7 +54,7 @@ Phylomark requires 3 arguments to run correctly:
 
 -Now you want to alter the file, phylomark_env.sh, to set the Phylomark_DIR environment variable. Then you can set the environment by:
 
->source phylomark_env.sh
+`source phylomark_env.sh`
 
 Once the files are generated and your environment is correct, Phylomark can be run by:
 
@@ -61,7 +65,7 @@ Other parameters that can be changed include:
 -l : frag_length (integer).  Length of genomic fragments to include
 --parallel_workers= (integer) : number of processors to use
 
-Known issues:
+### Known issues:
 
 -if the genome name is too long, muscle will truncate it.  Dendropy will then throw an error because
 the names don't match compared to the whole genome phylogeny.

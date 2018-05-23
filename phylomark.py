@@ -4,11 +4,11 @@ from __future__ import print_function
 import sys
 import optparse
 import errno
-#try:
-from phylomark.util import *
-#except:
-#    print("your phylomark environment is not set.  Add this directory to your PYTHONPATH")
-#    sys.exit()
+try:
+    from phylomark.util import *
+except:
+    print("your phylomark environment is not set. Add the phylomark directory to your PYTHONPATH")
+    sys.exit()
 
 def test_file(option, opt_str, value, parser):
     try:
@@ -73,17 +73,17 @@ def main(ref, genes, genomes, tree, step_size, frag_length, parallel_workers, ru
         #This is a dictionary of ID:read for the reference sequence
         fasta_dict = read_sequences(reads)
         outfile = open("query_sequences.fasta", "w")
-        for k,v in fasta_dict.iteritems():
+        for k,v in fasta_dict.items():
             outfile.write(">%s\n%s\n" % (k,v))
         outfile.close()
     elif "NULL" not in genes:
         """Need to rename these sequences before I process"""
         outfile = open("query_sequences.fasta", "w")
-        for record in SeqIO.parse(open(genes, "rU"), "fasta"):
-            outfile.write(">%d\n" % record_count_1.next())
-            outfile.write(str(record.seq)+"\n")
+        with open(genes) as fasta_file:
+            for record in SeqIO.parse(fasta_file, "fasta"):
+                outfile.write(">%d\n" % record_count_1.next())
+                outfile.write(str(record.seq)+"\n")
         outfile.close()
-        #os.system("cp %s query_sequences.fasta" % genes)
     if os.path.isfile("combined.seqs"):
         pass
     else:
@@ -94,8 +94,9 @@ def main(ref, genes, genomes, tree, step_size, frag_length, parallel_workers, ru
     """This function will likely need to be also changed if gene sequences are to be used"""
     if "NULL" not in genes:
         fasta_dict = {}
-        for record in SeqIO.parse(open("query_sequences.fasta"), "fasta"):
-            fasta_dict.update({record.id:record.seq})
+        with open("query_sequences.fasta") as my_fasta:
+            for record in SeqIO.parse(my_fasta, "fasta"):
+                fasta_dict.update({record.id:record.seq})
     logging.logPrint("Number of sequences to process = %s" % len(fasta_dict))
     logging.logPrint("Starting the loop")
     tree_loop(fasta_dict, "combined.seqs", tree, parallel_workers, run_r, num_refs)
