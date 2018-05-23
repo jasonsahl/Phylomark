@@ -1,26 +1,27 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys
 import optparse
 import errno
-try:
-    from phylomark.util import *
-except:
-    print "your phylomark environment is not set.  Add this directory to your PYTHONPATH"
-    sys.exit()
+#try:
+from phylomark.util import *
+#except:
+#    print("your phylomark environment is not set.  Add this directory to your PYTHONPATH")
+#    sys.exit()
 
 def test_file(option, opt_str, value, parser):
     try:
         with open(value): setattr(parser.values, option.dest, value)
     except IOError:
-        print '%s cannot be opened' % option
+        print('%s cannot be opened' % option)
         sys.exit()
 
 def test_dir(option, opt_str, value, parser):
     if os.path.exists(value):
         setattr(parser.values, option.dest, value)
     else:
-        print "directory of fastas cannot be found"
+        print("directory of fastas cannot be found")
         sys.exit()
 
 def test_options(option, opt_str, value, parser):
@@ -29,10 +30,11 @@ def test_options(option, opt_str, value, parser):
     elif "T" in value:
         setattr(parser.values, option.dest, value)
     else:
-        print "option not supported.  Only select from T and F"
+        print("option not supported.  Only select from T and F")
         sys.exit()
 
 def main(ref, genes, genomes, tree, step_size, frag_length, parallel_workers, run_r):
+    """Need to replace R entirely"""
     if "T" in run_r:
         try:
             os.makedirs('./R_output')
@@ -46,11 +48,14 @@ def main(ref, genes, genomes, tree, step_size, frag_length, parallel_workers, ru
         if rb == 0:
             pass
         else:
-            print "R is not in your path, but needs to be!"
+            print("R is not in your path, but needs to be!")
             sys.exit()
     dependencies = ['mothur','muscle','FastTree','blastn','makeblastdb','mothur']
     if "NULL" not in ref and "NULL" not in genes:
         logging.logPrint("You can't select both genes and a reference sequence..exiting")
+        sys.exit()
+    elif "NULL" in ref and "NULL" in genes:
+        logging.logPrint("You must choose either genes or reference..exiting")
         sys.exit()
     logging.logPrint("Checking the path of dependencies")
     for dependency in dependencies:
@@ -58,12 +63,12 @@ def main(ref, genes, genomes, tree, step_size, frag_length, parallel_workers, ru
         if ra == 0:
             pass
         else:
-            print "%s is not in your path, but needs to be!" % dependency
+            print("%s is not in your path, but needs to be!" % dependency)
             sys.exit()
     genome_path = os.path.abspath("%s" % genomes)
-    logging.logPrint("Prepping sequences")
     #Need to split reads from reference and also generate combined file
     if "NULL" not in ref:
+        logging.logPrint("Prepping sequences")
         reads = split_sequence_by_window(ref, step_size, frag_length)
         #This is a dictionary of ID:read for the reference sequence
         fasta_dict = read_sequences(reads)
@@ -71,6 +76,14 @@ def main(ref, genes, genomes, tree, step_size, frag_length, parallel_workers, ru
         for k,v in fasta_dict.iteritems():
             outfile.write(">%s\n%s\n" % (k,v))
         outfile.close()
+    elif "NULL" not in genes:
+        """Need to rename these sequences before I process"""
+        outfile = open("query_sequences.fasta", "w")
+        for record in SeqIO.parse(open(genes, "rU"), "fasta"):
+            outfile.write(">%d\n" % record_count_1.next())
+            outfile.write(str(record.seq)+"\n")
+        outfile.close()
+        #os.system("cp %s query_sequences.fasta" % genes)
     if os.path.isfile("combined.seqs"):
         pass
     else:
@@ -81,14 +94,15 @@ def main(ref, genes, genomes, tree, step_size, frag_length, parallel_workers, ru
     """This function will likely need to be also changed if gene sequences are to be used"""
     if "NULL" not in genes:
         fasta_dict = {}
-        for record in SeqIO.parse(open(genes), "fasta"):
+        for record in SeqIO.parse(open("query_sequences.fasta"), "fasta"):
             fasta_dict.update({record.id:record.seq})
     logging.logPrint("Number of sequences to process = %s" % len(fasta_dict))
     logging.logPrint("Starting the loop")
     tree_loop(fasta_dict, "combined.seqs", tree, parallel_workers, run_r, num_refs)
     logging.logPrint("Loop finished")
     outfile = open("tmp.txt", "w")
-    print >> outfile, "sequence\tRF\t#polymorphisms\tcontig_length"
+    outfile.write("sequence\tRF\tEUC\t#polymorphisms\tcontig_length\n")
+    #print >> outfile, "sequence\tRF\t#polymorphisms\tcontig_length"
     outfile.close()
     os.system("cat tmp.txt all_distances.txt > results.txt")
     logging.logPrint("Cleaning up")
@@ -133,7 +147,7 @@ if __name__ == "__main__":
     mandatories = ["genomes", "tree"]
     for m in mandatories:
         if not getattr(options, m, None):
-            print "\nMust provide %s.\n" %m
+            print("\nMust provide %s.\n" %m)
             parser.print_help()
             exit(-1)
 

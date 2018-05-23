@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys
 import os
 import subprocess
@@ -10,17 +11,19 @@ import threading
 import optparse
 try:
     import dendropy
+    import dendropy.treecalc
 except:
-    print "dendropy is not being called correctly!"
+    print("dendropy is not being called correctly!")
     sys.exit()
 import glob
 
+"""This dependency will need to be removed"""
 try:
     from igs.utils import functional as func
     from igs.utils import logging
     from igs.threading import functional as p_func
 except:
-    print "you need to add Phylomark to your PYTHONPATH!"
+    print("IGS not found in your PYTHONPATH!")
     sys.exit()
 
 try:
@@ -29,7 +32,7 @@ try:
     from Bio.Seq import Seq
     from Bio import Phylo
 except:
-    print "BioPython isn't in your PATH, but needs to be"
+    print("BioPython isn't in your PATH, but needs to be")
     sys.exit()
 
 class Increments:
@@ -48,11 +51,11 @@ class Increments:
 record_count_1 = Increments(1, 1)
 record_count_2 = Increments(1, 1)
 
-def paste_files(name_file, distance_file, poly_file, length_file, all_distance_file):
+def paste_files(name_file, distance_file, euc_file, poly_file, length_file, all_distance_file):
     handle = open(all_distance_file, "w")
     output = []
     distance_file_lines = open(distance_file, "rU").readlines()
-    for lines in zip(open(name_file, "rU"), open(distance_file, "rU"), open(poly_file, "rU"), open(length_file, "rU")):
+    for lines in zip(open(name_file, "rU"), open(distance_file, "rU"), open(euc_file, "rU"), open(poly_file, "rU"), open(length_file, "rU")):
         handle.write("\t".join([s.strip() for s in lines]) + "\n")
     handle.close()
 
@@ -62,7 +65,8 @@ def split_read(input_file, output_file):
     qual_lines = open(input_file, "rU")
     for line in qual_lines:
         line = line.strip()
-        print >> handle, ' '.join(line)
+        handle.write(' '.join(line))
+        handle.write("\n")
     handle.close()
 
 def sum_qual_reads(input_file, output_file):
@@ -71,7 +75,9 @@ def sum_qual_reads(input_file, output_file):
     padded_qual_lines = open(input_file, "rU")
     for line in padded_qual_lines.xreadlines():
         sum_values = sum([int(s) for s in line.split()])
-        print >> handle, sum_values
+        handle.write(str(sum_values))
+        handle.write("\n")
+        #print >> handle, sum_values
     handle.close()
 
 def get_seqs_by_id(fasta_file, names_file, out_file):
@@ -87,7 +93,6 @@ def get_seqs_by_id(fasta_file, names_file, out_file):
                 print_line = True
             else:
                 print_line = False
-
         if print_line:
             fout.write(line)
             fout.write("\n")
@@ -103,7 +108,8 @@ def blast_against_reference(blast_in, combined, outfile):
     try:
         os.system('blastn -task blastn -query %s -db %s -out %s -dust no -num_alignments 2000 -outfmt "7 std sseq"' % (blast_in,combined,outfile))
     except:
-        print "blast problem!"
+        print("blast problem!")
+        sys.exit()
 
 def blast_against_single(blast_in, ref, blast_type):
     cmd = ["blastn",
@@ -131,7 +137,7 @@ def check_tree_and_reads(combined, tree):
     if len(set(combined_ids).intersection(tree_ids)) == int(combined_length):
         pass
     else:
-        print "tree names and combined file do not match! exiting"
+        print("tree names and combined file do not match! exiting")
         sys.exit()
 
 def filter_blast_report(blast_file, frag_length):
@@ -143,7 +149,8 @@ def filter_blast_report(blast_file, frag_length):
     for line in open(blast_file):
         fields = line.split("\t")
         if int(fields[3]) >= min_frag_length and float(fields[2]) >= 0.99:
-            print >> handle, fields[0]
+            #print >> handle, fields[0]
+            handle.write(fields[0]+"\n")
     handle.close()
 
 def split_seqs(fasta_file):
@@ -192,21 +199,21 @@ def get_contig_length(in_fasta, outfile):
        length.append(str(len(record.seq)))
     my_out.write("".join(length)+"\n")
 
-class Increments:
-    def __init__(self, start, increment):
-        self.state = start
-        self.p_start = start
-        self.p_increment = increment
+#class Increments:
+#    def __init__(self, start, increment):
+#        self.state = start
+#        self.p_start = start
+#        self.p_increment = increment
 
-    def next(self):
-        self.state += self.p_increment
-        return self.state
+#    def next(self):
+#        self.state += self.p_increment
+#        return self.state
 
-    def reset(self):
-        self.state = self.p_start
+#    def reset(self):
+#        self.state = self.p_start
 
-record_count_1 = Increments(1, 1)
-record_count_2 = Increments(1, 1)
+#record_count_1 = Increments(1, 1)
+#record_count_2 = Increments(1, 1)
 
 def split_sequence_by_window(input_file, step_size, frag_length):
     """cuts up fasta sequences into given chunks"""
@@ -224,7 +231,8 @@ def write_sequences(reads):
     """write shredded fasta sequences to disk"""
     handle = open("seqs_shredded.txt", "w")
     for read in reads:
-        print >> handle, ">%d\n%s" % (record_count_1.next(), read)
+        #print >> handle, ">%d\n%s" % (record_count_1.next(), read)
+        handle.write(">%d\n%s" % (record_count_1.next(), read))
     handle.close()
 
 def read_sequences(reads):
@@ -233,24 +241,33 @@ def read_sequences(reads):
         read_dict.update({"%d" % record_count_1.next():"%s" % read})
     return read_dict
 
-def run_dendropy(tmp_tree, wga_tree, outfile):
+def run_dendropy(tmp_tree,wga_tree,outfile):
     out = open(outfile, "w")
     tree_one = dendropy.Tree.get_from_path(wga_tree,schema="newick",preserve_underscores=True)
     tree_two = dendropy.Tree.get_from_path(tmp_tree,schema="newick",preserve_underscores=True, taxon_set=tree_one.taxon_set)
     RFs = tree_one.symmetric_difference(tree_two)
-    print >> out, RFs
+    out.write(str(RFs))
+    out.write("\n")
+    out.close()
+
+def run_dendropy_euclidian(tmp_tree,wga_tree,outfile):
+    out = open(outfile, "w")
+    tree_one = dendropy.Tree.get_from_path(wga_tree,schema="newick",preserve_underscores=True)
+    tree_two = dendropy.Tree.get_from_path(tmp_tree,schema="newick",preserve_underscores=True, taxon_set=tree_one.taxon_set)
+    #RFs = tree_one.symmetric_difference(tree_two)
+    eu_dist = dendropy.treecalc.euclidean_distance(tree_one, tree_two)
+    out.write(str(eu_dist))
+    out.write("\n")
+    out.close()
 
 def check_and_align_seqs(infile, num_genomes, outfile):
     lengths = [ ]
     for record in SeqIO.parse(infile, "fasta"):
         lengths.append(len(record.seq))
     lengths.sort(key=int)
-    try:
-        if (lengths[0]/lengths[-1]) > 0.75 and len(lengths) == num_genomes:
-            os.system("muscle -in %s -out %s > /dev/null 2>&1" % (infile,outfile))
-        else:
-            pass
-    except:
+    if (lengths[0]/lengths[-1]) > 0.75 and len(lengths) == num_genomes:
+        os.system("muscle -in %s -out %s > /dev/null 2>&1" % (infile,outfile))
+    else:
         pass
 
 def tree_loop(fasta_dict, combined, tree, parallel_workers, run_r, num_refs):
@@ -271,12 +288,16 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, run_r, num_refs):
         check_and_align_seqs(_temp_name(tn, "seqs_in.fas"), num_refs, _temp_name(tn, "seqs_aligned.fas"))
         if os.path.isfile(_temp_name(tn, "seqs_aligned.fas")):
             """What if there are NO SNPs in a given region"""
+            #try:
             subprocess.call(['mothur',
                                    '#filter.seqs(fasta=%s, soft=100, vertical=F)' % _temp_name(tn, "seqs_aligned.fas")], stdout=subprocess.PIPE)
             subprocess.check_call('sed "s/[^1]/0/g" %s | sed "s/0/2/g" | sed "s/1/0/g" | sed "s/2/1/g" > %s' % (_temp_name(tn, "seqs_aligned.filter"),
                                                                                                                 _temp_name(tn, "mask.txt")), shell=True)
             split_read(_temp_name(tn, "mask.txt"),_temp_name(tn, "padded.txt"))
             sum_qual_reads(_temp_name(tn, "padded.txt"), _temp_name(tn,"polys.txt"))
+            #except:
+            #    """This function was never created"""
+            #    write_poly_zeros(_temp_name(tn, "padded.txt"), _temp_name(tn,"polys.txt"))
             if "T" == run_r:
                 name = get_seq_name("%s.fasta" % tn)
                 subprocess.check_call("cat snps.r | R --slave --args %s %s.table %s.pdf 2> /dev/null" % (_temp_name(tn, "seqs_aligned.fas"), name, name),
@@ -289,10 +310,13 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, run_r, num_refs):
                                                                                  _temp_name(tn, "tmp.tree")),
                                   shell=True)
             run_dendropy("%s" % (_temp_name(tn, "tmp.tree")), tree, "%s" % (_temp_name(tn, "tmp.RF")))
+            run_dendropy_euclidian("%s" % (_temp_name(tn, "tmp.tree")), tree, "%s" % (_temp_name(tn, "tmp.EU")))
             get_contig_length("%s.fasta" % tn, _temp_name(tn, "length.txt"))
             thread_id = id(threading.current_thread())
             thread_distance_file = str(thread_id) + '_distance.txt'
             parse_rf_file(_temp_name(tn, "tmp.RF"), thread_distance_file)
+            thread_euclidian_file = str(thread_id) + "_euc_dist.txt"
+            parse_rf_file(_temp_name(tn, "tmp.EU"), thread_euclidian_file)
             thread_name_file = str(thread_id) + '_name.txt'
             write_strip_name("%s.fasta" % tn, thread_name_file)
             polys_name_file = str(thread_id) + '_polys.txt'
@@ -311,13 +335,15 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, run_r, num_refs):
                                    _temp_name(tn, "seqs_aligned.fas"),
                                    _temp_name(tn, "tmp.tree"),
                                    _temp_name(tn, "tmp.RF"),
+                                   _temp_name(tn, "tmp.EU"),
                                    _temp_name(tn, "mask.txt"),
                                    _temp_name(tn, "padded.txt"),
                                    _temp_name(tn, "polys.txt"),
                                    _temp_name(tn, "seqs_aligned.filter"),
                                    _temp_name(tn, "length.txt"),
                                    _temp_name(tn, "seqs_aligned.filter.fasta")])
-            return (thread_distance_file, thread_name_file, polys_name_file, length_name_file)
+            return (thread_distance_file, thread_name_file, polys_name_file, length_name_file,
+                    thread_euclidian_file)
         else:
             subprocess.check_call(["rm",
                                    _temp_name(tn, "blast_parsed.txt"),
@@ -339,22 +365,25 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, run_r, num_refs):
         names = []
         polys = []
         lengths = []
+        euc_dist = []
         for value in files:
             if value:
                 distances.append(value[0])
                 names.append(value[1])
                 polys.append(value[2])
                 lengths.append(value[3])
+                euc_dist.append(value[4])
         if distances:
             subprocess.check_call("cat %s >> distance.txt" % " ".join(distances), shell=True)
             subprocess.check_call("cat %s >> name.txt" % " ".join(names), shell=True)
             subprocess.check_call("cat %s >> polys.txt" % " ".join(polys), shell=True)
             subprocess.check_call("cat %s >> length.txt" % " ".join(lengths), shell=True)
+            subprocess.check_call("cat %s >> euc_dist.txt" % " ".join(euc_dist), shell=True)
             subprocess.check_call("rm %s" % " ".join(distances), shell=True)
             subprocess.check_call("rm %s" % " ".join(names), shell=True)
             subprocess.check_call("rm %s" % " ".join(polys), shell=True)
             subprocess.check_call("rm %s" % " ".join(lengths), shell=True)
-    paste_files("name.txt", "distance.txt", "polys.txt", "length.txt", "all_distances.txt")
+    paste_files("name.txt","distance.txt","euc_dist.txt","polys.txt","length.txt","all_distances.txt")
 
 def pull_line(names_in, quality_in, out_file):
     handle = open(out_file, "w")
@@ -363,7 +392,9 @@ def pull_line(names_in, quality_in, out_file):
     for line in counts:
         fields = line.strip().split("\t")
         if fields[0] in names:
-            print >> handle, line,
+            #print >> handle, line,
+            handle.write(line)
+            handle.write("\n")
     handle.close()
 
 def merge_files_by_column(column, file_1, file_2, out_file):
@@ -396,24 +427,34 @@ def parsed_blast_to_seqs(parsed_file, outfile):
             pass
         else:
             fields = line.split()
-            print >> handle, ">"+str(fields[1])
-            print >> handle, fields[12]
+            handle.write(">"+str(fields[1])+"\n")
+            handle.write(fields[12])
+            handle.write("\n")
+            #print >> handle, ">"+str(fields[1])
+            #print >> handle, fields[12]
     handle.close()
+    infile.close()
 
 def parse_rf_file(infile, outfile):
     handle = open(outfile, "a")
     for line in open(infile):
-        print >> handle, line,
+        handle.write(line)
+        #handle.write("\n")
+        #print >> handle, line,
     handle.close()
 
 def parse_poly_file(infile, outfile):
     handle = open(outfile, "a")
     for line in open(infile):
-        print >> handle, line,
+        handle.write(line)
+        #handle.write("\n")
+        #print >> handle, line,
     handle.close()
 
 def write_strip_name(filename, outfile):
     handle = open(outfile, "a")
     filename = os.path.splitext(os.path.basename(filename))[0]
-    print >> handle, filename
+    #print >> handle, filename
+    handle.write(filename)
+    handle.write("\n")
     handle.close()
