@@ -1,6 +1,4 @@
-Phylomark
-=========
-Phylomark - a tool to find phylogenetic markers from whole genome alignments***
+### Phylomark - a tool to find phylogenetic markers from whole genome alignments
 
 contact: jasonsahl@gmail.com
 
@@ -28,7 +26,7 @@ export PYTHOPATH=/Users/jsahl/Phylomark:$PYTHONPATH
 
 To make this permanent, add this to your .bashrc or .profile
 
-## Dependencies:
+### Dependencies:
 
 -Biopython (www.biopython.org) #in .bashrc, point PYTHONPATH variable to Bio location (e.g. PYTHONPATH=/home/jsahl/biopython-1.53:$PYTHONPATH; export PYTHONPATH)
 
