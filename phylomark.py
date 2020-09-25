@@ -4,6 +4,7 @@ import sys
 import optparse
 import errno
 import subprocess
+from optparse import OptionParser
 try:
     from phylomark.util import *
 except:
@@ -33,21 +34,7 @@ def test_options(option, opt_str, value, parser):
         print("option not supported.  Only select from T and F")
         sys.exit()
 
-def main(ref, genes, genomes, tree, step_size, frag_length, parallel_workers, run_r):
-    """Need to replace R entirely"""
-    #if "T" in run_r:
-    #    try:
-    #        os.makedirs('./R_output')
-    #    except OSError, e:
-    #        if e.errno != errno.EEXIST:
-    #    	raise
-    #if "T" in run_r:
-    #    rb = subprocess.call(['which', 'R'])
-    #    if rb == 0:
-    #        pass
-    #    else:
-    #        print("R is not in your path, but needs to be!")
-    #        sys.exit()
+def main(ref,genes,genomes,tree,step_size,frag_length,parallel_workers):
     dependencies = ['mothur','muscle','FastTree','blastn','makeblastdb']
     if "NULL" not in ref and "NULL" not in genes:
         logging.logPrint("You can't select both genes and a reference sequence..exiting")
@@ -111,7 +98,7 @@ def main(ref, genes, genomes, tree, step_size, frag_length, parallel_workers, ru
 
 if __name__ == "__main__":
     usage="usage: %prog [options]"
-    parser = optparse.OptionParser(usage=usage)
+    parser = OptionParser(usage="usage: %prog [options]",version="%prog 1.5")
     parser.add_option("-r", "--ref_file", dest="ref",
                       help="/path/to/reference_genome [optional], use if genes not used",
                       action="callback", callback=test_file, type="string", default="NULL")
@@ -133,9 +120,6 @@ if __name__ == "__main__":
     parser.add_option("-p", "--parallel_workers", dest="parallel_workers",
                       help="How much work to do in parallel, defaults to 2, should number of CPUs your machine has",
                       default="2", type="int")
-    parser.add_option("-u", "--run_r", dest="run_r",
-                      help="Run R implementation?  Default is F, modify to T to run",
-                      default="F", action="callback", callback=test_options, type="string")
     parser.add_option("", "--debug", dest="debug",
                       help="Turn debug statements on",
                       action="store_true", default=False)
@@ -152,4 +136,4 @@ if __name__ == "__main__":
     logging.DEBUG = options.debug
 
     main(options.ref, options.genes, options.genomes, options.tree, options.step_size,
-         options.frag_length, options.parallel_workers, options.run_r)
+         options.frag_length, options.parallel_workers)
