@@ -10,14 +10,20 @@ v_1_3: fixed the script structure, added additional scripts and README details
 
 v_1_4: Huge overhaul. Blastall changed to blast+. Took away the need for using MUGSY alignments. Now scales better to hundreds to thousands of genomes. Command line arguments are completely different
 
+v_1_5: Code rewritten for consistency with new programs as well as working with Python 3.7+
+
 ### Installation:
 
--to install Phylomark, enter the directory and type:
+-The easiest way to install Phylomark is through Conda:
 
-(sudo) python setup.py install
+`conda create -n phylomark python=3.7`
+`conda activate phylomark`
+`conda install -c bioconda muscle fasttree blast biopython dendropy mothur`
 
--If you don't have sudo privalages, try:
+-Clone the repo from github:
 
+`git clone https://github.com/jasonsahl/Phylomark.git`
+`cd Phylomark`
 python setup.py install --user
 
 Then set your PYTHONPATH to include Phylomark
@@ -26,37 +32,21 @@ export PYTHOPATH=/Users/jsahl/Phylomark:$PYTHONPATH
 
 To make this permanent, add this to your .bashrc or .profile
 
-### Dependencies:
-
--Biopython (www.biopython.org) #in .bashrc, point PYTHONPATH variable to Bio location (e.g. PYTHONPATH=/home/jsahl/biopython-1.53:$PYTHONPATH; export PYTHONPATH)
-
--blast+, can be obtained from NCBI
-
--the following scripts are included with Phylomark.  If you have an architecture different than i86linux64, then you may need to re-compile on your system:
-
--FastTree (http://www.microbesonline.org/fasttree/)
-
--mothur (http://www.mothur.org)
-
--muscle (http://www.drive5.com/muscle/)
-
--Dendropy (see the end of this document for license information)
-
 ### Running Phylomark:
 
 Phylomark requires 3 arguments to run correctly:
 
-1. whole genome phylogeny (can be generated with multiple methods)
-2. directory of genomes that went into your phylogeny
-3. Reference genome from one isolate from the whole genome alignment
+1. whole genome phylogeny (can be generated with multiple methods)  
+2. directory of genomes that went into your phylogeny  
+3. Reference genome from one isolate from the whole genome phylogeny  
 
 -Now you want to alter the file, phylomark_env.sh, to set the Phylomark_DIR environment variable. Then you can set the environment by:
 
 `source phylomark_env.sh`
 
-Once the files are generated and your environment is correct, Phylomark can be run by:
+Once the files are generated and your environment is correct, Phylomark can be run by:  
 
->phylomark.py -r reference_genome -d genome_directory -t wga.tree
+`phylomark.py -r reference_genome -d genome_directory -t wga.tree`
 
 Other parameters that can be changed include:
 -s : step_size (integer).  The sliding window will move this many bases
