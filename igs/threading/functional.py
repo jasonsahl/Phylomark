@@ -1,5 +1,5 @@
 # Parallel implementations of various functions
-import Queue
+import queue
 
 from igs.threading import threads
 
@@ -13,7 +13,7 @@ def pmap(f, iterable, num_workers=1):
     # We want to ensure the order is the same
     # on the output string so we index each value
     # so we can reconstruct it
-    work_queue = Queue.Queue()
+    work_queue = queue.Queue()
     for idx, v in enumerate(iterable):
         work_queue.put((idx, v))
 
@@ -33,8 +33,3 @@ def pmap(f, iterable, num_workers=1):
     result.sort()
 
     return [v for _, v in result]
-
-
-
-
-    

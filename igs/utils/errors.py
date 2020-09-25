@@ -1,13 +1,13 @@
 ##
 # Various exceptions/errors can be defined here
 import traceback
-from StringIO import StringIO
+from io import StringIO
 
 
 class TryError(Exception):
     """
     Used when you want to try something but it fails but you want to return
-    a partial result.  
+    a partial result.
 
     .result contains this result
     .msg contains whatever message the caller put in there

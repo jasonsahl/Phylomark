@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
 import sys
 import optparse
 import errno
+import subprocess
 try:
     from phylomark.util import *
 except:
@@ -35,22 +35,20 @@ def test_options(option, opt_str, value, parser):
 
 def main(ref, genes, genomes, tree, step_size, frag_length, parallel_workers, run_r):
     """Need to replace R entirely"""
-    if "T" in run_r:
-        try:
-            os.makedirs('./R_output')
-        except OSError, e:
-            if e.errno != errno.EEXIST:
-        	raise
-    else:
-        pass
-    if "T" in run_r:
-        rb = subprocess.call(['which', 'R'])
-        if rb == 0:
-            pass
-        else:
-            print("R is not in your path, but needs to be!")
-            sys.exit()
-    dependencies = ['mothur','muscle','FastTree','blastn','makeblastdb','mothur']
+    #if "T" in run_r:
+    #    try:
+    #        os.makedirs('./R_output')
+    #    except OSError, e:
+    #        if e.errno != errno.EEXIST:
+    #    	raise
+    #if "T" in run_r:
+    #    rb = subprocess.call(['which', 'R'])
+    #    if rb == 0:
+    #        pass
+    #    else:
+    #        print("R is not in your path, but needs to be!")
+    #        sys.exit()
+    dependencies = ['mothur','muscle','FastTree','blastn','makeblastdb']
     if "NULL" not in ref and "NULL" not in genes:
         logging.logPrint("You can't select both genes and a reference sequence..exiting")
         sys.exit()
@@ -103,7 +101,6 @@ def main(ref, genes, genomes, tree, step_size, frag_length, parallel_workers, ru
     logging.logPrint("Loop finished")
     outfile = open("tmp.txt", "w")
     outfile.write("sequence\tRF\tEUC\t#polymorphisms\tcontig_length\n")
-    #print >> outfile, "sequence\tRF\t#polymorphisms\tcontig_length"
     outfile.close()
     os.system("cat tmp.txt all_distances.txt > results.txt")
     logging.logPrint("Cleaning up")
@@ -145,7 +142,7 @@ if __name__ == "__main__":
 
     options, args = parser.parse_args()
 
-    mandatories = ["genomes", "tree"]
+    mandatories = ["genomes","tree"]
     for m in mandatories:
         if not getattr(options, m, None):
             print("\nMust provide %s.\n" %m)
