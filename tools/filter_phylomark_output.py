@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-"""takes a list of record.ids and returns to you the sequences 
+"""takes a list of record.ids and returns to you the sequences
 from a fasta list that are part of the list"""
 
 from Bio import SeqIO
@@ -11,36 +11,36 @@ def test_file(option, opt_str, value, parser):
     try:
         with open(value): setattr(parser.values, option.dest, value)
     except IOError:
-        print '%s file cannot be opened' % option
+        print('%s file cannot be opened' % option)
         sys.exit()
 
-def get_list(ids, rf):
-    infile = open(ids, "U")
-    to_keep = [ ]
-    for line in infile:
-        fields = line.split()
-        if int(fields[1])>=int(rf):
-            to_keep.append(fields[0])
+def get_list(ids,rf):
+    infile = open(ids)
+    to_keep = []
+    with open(infile) as my_file:
+        for line in my_file:
+            fields = line.split()
+            if int(fields[1])>=int(rf):
+                to_keep.append(fields[0])
     return to_keep
 
 def filter_reads(in_fasta, to_keep, out_fasta):
-    infile = open(in_fasta, "U")
     output_handle = open(out_fasta, "w")
-    seqrecords=[ ]
-    for record in SeqIO.parse(infile, "fasta"):
-        if record.id in to_keep:
-            seqrecords.append(record)
-    SeqIO.write(seqrecords, output_handle, "fasta") 
-    infile.close()
+    seqrecords=[]
+    with open(in_fasta) as infile:
+        for record in SeqIO.parse(infile, "fasta"):
+            if record.id in to_keep:
+                seqrecords.append(record)
+    SeqIO.write(seqrecords, output_handle, "fasta")
     output_handle.close()
 
-def main(in_fasta, ids, out_fasta, rf):
-    to_keep=get_list(ids, rf)
-    filter_reads(in_fasta, to_keep, out_fasta)
+def main(in_fasta,ids,out_fasta,rf):
+    to_keep=get_list(ids,rf)
+    filter_reads(in_fasta,to_keep,out_fasta)
 
 if __name__ == "__main__":
     usage="usage: %prog [options]"
-    parser = OptionParser(usage=usage) 
+    parser = OptionParser(usage=usage)
     parser.add_option("-i", "--input_fasta", dest="in_fasta",
                     help="/path/to/input fasta [REQUIRED]",
                     action="callback", callback=test_file, type="string")
@@ -55,12 +55,12 @@ if __name__ == "__main__":
                     default="30", action="store", type="int")
 
     options, args = parser.parse_args()
-    
-    mandatories = ["in_fasta", "ids", "out_fasta"]
+
+    mandatories = ["in_fasta","ids","out_fasta"]
     for m in mandatories:
-	if not options.__dict__[m]:
+        if not options.__dict__[m]:
             print "\nMust provide %s.\n" %m
-	    parser.print_help()
-	    exit(-1)
-            
-    main(options.in_fasta, options.ids, options.out_fasta, options.rf)
+            parser.print_help()
+            exit(-1)
+
+    main(options.in_fasta,options.ids,options.out_fasta,options.rf)
