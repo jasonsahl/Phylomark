@@ -84,7 +84,7 @@ def main(ref,genes,genomes,tree,step_size,frag_length,parallel_workers):
                 fasta_dict.update({record.id:record.seq})
     logging.logPrint("Number of sequences to process = %s" % len(fasta_dict))
     logging.logPrint("Starting the loop")
-    tree_loop(fasta_dict, "combined.seqs", tree, parallel_workers, run_r, num_refs)
+    tree_loop(fasta_dict, "combined.seqs", tree, parallel_workers, num_refs)
     logging.logPrint("Loop finished")
     outfile = open("tmp.txt", "w")
     outfile.write("sequence\tRF\tEUC\t#polymorphisms\tcontig_length\n")

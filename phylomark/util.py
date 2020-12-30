@@ -258,7 +258,7 @@ def check_and_align_seqs(infile, num_genomes, outfile):
     if (lengths[0]/lengths[-1]) > 0.75 and len(lengths) == num_genomes:
         os.system("muscle -in %s -out %s > /dev/null 2>&1" % (infile,outfile))
 
-def tree_loop(fasta_dict, combined, tree, parallel_workers, run_r, num_refs):
+def tree_loop(fasta_dict, combined, tree, parallel_workers, num_refs):
     def _temp_name(t, f):
         return t + '_' + f
 
@@ -282,13 +282,6 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, run_r, num_refs):
                                                                                                                 _temp_name(tn, "mask.txt")), shell=True)
             split_read(_temp_name(tn, "mask.txt"),_temp_name(tn, "padded.txt"))
             sum_qual_reads(_temp_name(tn, "padded.txt"), _temp_name(tn,"polys.txt"))
-            if "T" == run_r:
-                name = get_seq_name("%s.fasta" % tn)
-                subprocess.check_call("cat snps.r | R --slave --args %s %s.table %s.pdf 2> /dev/null" % (_temp_name(tn, "seqs_aligned.fas"), name, name), shell=True)
-                os.system("mv %s.table ./R_output/%s.table.txt" % (name, name))
-                os.system("mv %s.pdf ./R_output/%s.plots.pdf" % (name, name))
-            else:
-                pass
             subprocess.check_call("FastTree -nt -noboot %s > %s 2> /dev/null" % (_temp_name(tn, "seqs_aligned.fas"),
                                                                                  _temp_name(tn, "tmp.tree")),shell=True)
             run_dendropy("%s" % (_temp_name(tn, "tmp.tree")), tree, "%s" % (_temp_name(tn, "tmp.RF")))
