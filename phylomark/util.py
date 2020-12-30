@@ -308,7 +308,7 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, num_refs):
                                    _temp_name(tn, "blast_unique.parsed.txt"),
                                    _temp_name(tn, "seqs_in.fas"),
                                    _temp_name(tn, "seqs_aligned.fas"),
-                                   _temp_name(tn, "tmp.tree"),
+                                   #_temp_name(tn, "tmp.tree"),
                                    _temp_name(tn, "tmp.RF"),
                                    _temp_name(tn, "tmp.EU"),
                                    _temp_name(tn, "mask.txt"),
@@ -316,6 +316,7 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, num_refs):
                                    _temp_name(tn, "polys.txt"),
                                    _temp_name(tn, "seqs_aligned.filter"),
                                    _temp_name(tn, "length.txt"),
+                                   _temp_name(tn, "euc_dist.txt"),
                                    _temp_name(tn, "seqs_aligned.filter.fasta")])
             return (thread_distance_file, thread_name_file, polys_name_file, length_name_file,
                     thread_euclidian_file)
@@ -333,7 +334,7 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, num_refs):
                               num_workers=parallel_workers))
 
     #I do this to make sure and remove any old files that are setting around
-    subprocess.call("rm distance.txt name.txt polys.txt length.txt", shell=True, stderr=open(os.devnull, 'w'))
+    subprocess.call("rm distance.txt name.txt polys.txt length.txt euc_dist.txt", shell=True, stderr=open(os.devnull, 'w'))
 
     for files in func.chunk(5, results):
         distances = []

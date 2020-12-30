@@ -77,8 +77,8 @@ flag points to the WGA tree used in Phylomark. You can set the number of markers
 The resulting file ("marker_results.txt") has the IDs of your markers and the resulting
 RF value.  For example if you have three markers, your output would look like:
 
-2018    2057    2523    32
-864     867     2056    31
+2018    2057    2523    32  
+864     867     2056    31  
 
 In this case, the markers 864, 867, 2056 produce the lowest RF values.  The sequence
 for these markers are in your all_reads.fasta file
