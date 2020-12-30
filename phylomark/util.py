@@ -422,6 +422,24 @@ def parse_poly_file(infile, outfile):
             handle.write(line)
     handle.close()
 
+def process_tmp_trees():
+    import os
+    import glob
+    cwd = os.getcwd()
+    outfile = open("all_trees.txt", "w")
+    for infile in glob.glob(os.path.join(cwd, '*_tmp.tree')):
+        path_split = infile.split("/")
+        name_fields = path_split[-1].split("_")
+        name = name_fields[0]
+        with open(infile) as my_file:
+            first_line = my_file.readline()
+            outfile.write("%s" % name + "\t" + first_line)
+    outfile.close()
+    try:
+        os.system("rm %s/*_tmp.tree" % cwd)
+    except:
+        pass
+
 def write_strip_name(filename, outfile):
     handle = open(outfile, "a")
     filename = os.path.splitext(os.path.basename(filename))[0]

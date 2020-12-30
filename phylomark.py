@@ -90,6 +90,7 @@ def main(ref,genes,genomes,tree,step_size,frag_length,parallel_workers):
     outfile.write("sequence\tRF\tEUC\t#polymorphisms\tcontig_length\n")
     outfile.close()
     os.system("cat tmp.txt all_distances.txt > results.txt")
+    process_tmp_trees()
     logging.logPrint("Cleaning up")
     try:
         subprocess.check_call("rm length.txt distance.txt name.txt polys.txt tmp.txt all_distances.txt combined.seqs*", shell=True)
