@@ -357,10 +357,10 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, num_refs):
             subprocess.check_call("cat %s >> polys.txt" % " ".join(polys), shell=True)
             subprocess.check_call("cat %s >> length.txt" % " ".join(lengths), shell=True)
             subprocess.check_call("cat %s >> euc_dist.txt" % " ".join(euc_dist), shell=True)
-            subprocess.check_call("rm %s" % " ".join(distances), shell=True)
-            subprocess.check_call("rm %s" % " ".join(names), shell=True)
-            subprocess.check_call("rm %s" % " ".join(polys), shell=True)
-            subprocess.check_call("rm %s" % " ".join(lengths), shell=True)
+            #subprocess.check_call("rm %s" % " ".join(distances), shell=True)
+            #subprocess.check_call("rm %s" % " ".join(names), shell=True)
+            #subprocess.check_call("rm %s" % " ".join(polys), shell=True)
+            #subprocess.check_call("rm %s" % " ".join(lengths), shell=True)
     paste_files("name.txt","distance.txt","euc_dist.txt","polys.txt","length.txt","all_distances.txt")
 
 def pull_line(names_in, quality_in, out_file):
