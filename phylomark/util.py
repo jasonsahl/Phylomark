@@ -266,9 +266,9 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, num_refs):
 
     def _perform_workflow(data):
         tn, f = data
-        print(tn, f)
+        #tn is the sequence ID, f is the actual sequence
         outfile = open("%s.fasta" % tn, "w")
-        outfile.write(">%s\n%s" % (tn,f))
+        outfile.write(">%s\n%s\n" % (tn,f))
         outfile.close()
         logging.debugPrint(lambda : "Processing sequence: %s" % tn)
         blast_against_reference("%s.fasta" % tn, combined, _temp_name(tn, "blast_parsed.txt"))
