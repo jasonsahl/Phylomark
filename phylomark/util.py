@@ -300,34 +300,34 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, num_refs):
             parse_poly_file(_temp_name(tn, "polys.txt"), polys_name_file)
             length_name_file = str(thread_id) + '_length.txt'
             parse_poly_file(_temp_name(tn, "length.txt"), length_name_file)
-            #try:
-            #    subprocess.check_call("rm mothur*", shell=True, stderr=open(os.devnull, 'w'))
-            #except:
-            #    pass
-            #subprocess.check_call(["rm",
-            #                       _temp_name(tn, "blast_parsed.txt"),
-            #                       "%s.fasta" % tn,
-            #                       _temp_name(tn, "blast_unique.parsed.txt"),
-            #                       _temp_name(tn, "seqs_in.fas"),
-            #                       _temp_name(tn, "seqs_aligned.fas"),
-            #                       _temp_name(tn, "tmp.tree"),
-            #                       _temp_name(tn, "tmp.RF"),
-            #                       _temp_name(tn, "tmp.EU"),
-            #                       _temp_name(tn, "mask.txt"),
-            #                       _temp_name(tn, "padded.txt"),
-            #                       _temp_name(tn, "polys.txt"),
-            #                       _temp_name(tn, "seqs_aligned.filter"),
-            #                       _temp_name(tn, "length.txt"),
-            #                       _temp_name(tn, "seqs_aligned.filter.fasta")])
+            try:
+                subprocess.check_call("rm mothur*", shell=True, stderr=open(os.devnull, 'w'))
+            except:
+                pass
+            subprocess.check_call(["rm",
+                                   _temp_name(tn, "blast_parsed.txt"),
+                                   "%s.fasta" % tn,
+                                   _temp_name(tn, "blast_unique.parsed.txt"),
+                                   _temp_name(tn, "seqs_in.fas"),
+                                   _temp_name(tn, "seqs_aligned.fas"),
+                                   _temp_name(tn, "tmp.tree"),
+                                   _temp_name(tn, "tmp.RF"),
+                                   _temp_name(tn, "tmp.EU"),
+                                   _temp_name(tn, "mask.txt"),
+                                   _temp_name(tn, "padded.txt"),
+                                   _temp_name(tn, "polys.txt"),
+                                   _temp_name(tn, "seqs_aligned.filter"),
+                                   _temp_name(tn, "length.txt"),
+                                   _temp_name(tn, "seqs_aligned.filter.fasta")])
             return (thread_distance_file, thread_name_file, polys_name_file, length_name_file,
                     thread_euclidian_file)
-        #else:
-        #    subprocess.check_call(["rm",
-        #                           _temp_name(tn, "blast_parsed.txt"),
-        #                           "%s.fasta" % tn,
+        else:
+            subprocess.check_call(["rm",
+                                   _temp_name(tn, "blast_parsed.txt"),
+                                   "%s.fasta" % tn,
         #                           _temp_name(tn, "euc_dist.txt"),
-        #                           _temp_name(tn, "blast_unique.parsed.txt"),
-        #                           _temp_name(tn, "seqs_in.fas")])
+                                   _temp_name(tn, "blast_unique.parsed.txt"),
+                                   _temp_name(tn, "seqs_in.fas")])
 
     files_and_temp_names = [(str(idx), f)
                              for idx, f in fasta_dict.items()]
@@ -336,7 +336,7 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, num_refs):
                               num_workers=parallel_workers))
 
     #I do this to make sure and remove any old files that are setting around
-    #subprocess.call("rm distance.txt name.txt polys.txt length.txt euc_dist.txt", shell=True, stderr=open(os.devnull, 'w'))
+    subprocess.call("rm distance.txt name.txt polys.txt length.txt euc_dist.txt", shell=True, stderr=open(os.devnull, 'w'))
 
     for files in func.chunk(5, results):
         distances = []
@@ -357,10 +357,10 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, num_refs):
             subprocess.check_call("cat %s >> polys.txt" % " ".join(polys), shell=True)
             subprocess.check_call("cat %s >> length.txt" % " ".join(lengths), shell=True)
             subprocess.check_call("cat %s >> euc_dist.txt" % " ".join(euc_dist), shell=True)
-            #subprocess.check_call("rm %s" % " ".join(distances), shell=True)
-            #subprocess.check_call("rm %s" % " ".join(names), shell=True)
-            #subprocess.check_call("rm %s" % " ".join(polys), shell=True)
-            #subprocess.check_call("rm %s" % " ".join(lengths), shell=True)
+            subprocess.check_call("rm %s" % " ".join(distances), shell=True)
+            subprocess.check_call("rm %s" % " ".join(names), shell=True)
+            subprocess.check_call("rm %s" % " ".join(polys), shell=True)
+            subprocess.check_call("rm %s" % " ".join(lengths), shell=True)
     paste_files("name.txt","distance.txt","euc_dist.txt","polys.txt","length.txt","all_distances.txt")
 
 def pull_line(names_in, quality_in, out_file):
@@ -437,10 +437,10 @@ def process_tmp_trees():
             first_line = my_file.readline()
             outfile.write("%s" % name + "\t" + first_line)
     outfile.close()
-    #try:
-    #    os.system("rm %s/*_tmp.tree" % cwd)
-    #except:
-    #    pass
+    try:
+        os.system("rm %s/*_tmp.tree" % cwd)
+    except:
+        pass
 
 def write_strip_name(filename, outfile):
     handle = open(outfile, "a")
