@@ -265,6 +265,7 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, num_refs):
         return t + '_' + f
 
     def _perform_workflow(data):
+        print(tn,f)
         tn, f = data
         outfile = open("%s.fasta" % tn, "w")
         outfile.write(">%s\n%s" % (tn,f))
