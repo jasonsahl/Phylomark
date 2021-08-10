@@ -241,9 +241,11 @@ def run_dendropy(tmp_tree,wga_tree,outfile):
 
 def run_dendropy_euclidian(tmp_tree,wga_tree,outfile):
     out = open(outfile, "w")
-    tree_one = dendropy.Tree.get_from_path(wga_tree,schema="newick",preserve_underscores=True)
-    tree_two = dendropy.Tree.get_from_path(tmp_tree,schema="newick",preserve_underscores=True, taxon_namespace=tree_one.taxon_namespace)
-    #eu_dist = dendropy.treecalc.euclidean_distance(tree_one, tree_two)
+    tns = dendropy.TaxonNamespace()
+    #tree_one = dendropy.Tree.get_from_path(wga_tree,schema="newick",preserve_underscores=True)
+    tree_one = dendropy.Tree.get_from_path(wga_tree,"newick",taxon_namespace=tns)
+    #tree_two = dendropy.Tree.get_from_path(tmp_tree,schema="newick",preserve_underscores=True, taxon_namespace=tree_one.taxon_namespace)
+    tree_two = dendropy.Tree.get_from_path(tmp_tree,"newick",taxon_namespace=tree_one.taxon_namespace)
     eu_dist = dendropy.calculate.treecompare.euclidean_distance(tree_one,tree_two)
     out.write(str(eu_dist))
     out.write("\n")
