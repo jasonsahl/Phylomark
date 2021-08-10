@@ -270,7 +270,7 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, num_refs):
         outfile = open("%s.fasta" % tn, "w")
         outfile.write(">%s\n%s\n" % (tn,f))
         outfile.close()
-        logging.logPrint("Processing sequence: %s" % tn)
+        logging.debugPrint(lambda : "Processing sequence: %s" % tn)
         blast_against_reference("%s.fasta" % tn, combined, _temp_name(tn, "blast_parsed.txt"))
         subprocess.check_call("sort -u -k 2,2 %s > %s" % (_temp_name(tn, "blast_parsed.txt"),
                                                           _temp_name(tn, "blast_unique.parsed.txt")),shell=True)
