@@ -188,7 +188,7 @@ def process_fastas(directory, out_fasta):
     fout = open(out_fasta, "w")
     for infile in glob.glob(os.path.join(directory, '*.fasta')):
         names = get_seq_name(infile)
-        reduced = names.rstrip('.fasta')
+        reduced = names.replace('.fasta','')
         fout.write('>' + str(reduced) + '\n')
         with open(infile) as my_file:
             for record in SeqIO.parse(my_file, "fasta"):
@@ -258,7 +258,7 @@ def check_and_align_seqs(infile, num_genomes, outfile):
             lengths.append(len(record.seq))
     lengths.sort(key=int)
     if (lengths[0]/lengths[-1]) > 0.75 and len(lengths) == num_genomes:
-        os.system("muscle -in %s -out %s > /dev/null 2>&1" % (infile,outfile))
+        subprocess.check_call("muscle -super5 %s -output %s" % (infile,outfile), stdout=open(os.devnull,'wb'),stderr=open(os.devnull,'wb'),shell=True)
 
 def tree_loop(fasta_dict, combined, tree, parallel_workers, num_refs):
     def _temp_name(t, f):
@@ -310,7 +310,7 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, num_refs):
                                    _temp_name(tn, "blast_unique.parsed.txt"),
                                    _temp_name(tn, "seqs_in.fas"),
                                    _temp_name(tn, "seqs_aligned.fas"),
-                                   _temp_name(tn, "tmp.tree"),
+                                   #_temp_name(tn, "tmp.tree"),
                                    _temp_name(tn, "tmp.RF"),
                                    _temp_name(tn, "tmp.EU"),
                                    _temp_name(tn, "mask.txt"),
@@ -325,7 +325,7 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, num_refs):
             subprocess.check_call(["rm",
                                    _temp_name(tn, "blast_parsed.txt"),
                                    "%s.fasta" % tn,
-        #                           _temp_name(tn, "euc_dist.txt"),
+                                   #_temp_name(tn, "euc_dist.txt"),
                                    _temp_name(tn, "blast_unique.parsed.txt"),
                                    _temp_name(tn, "seqs_in.fas")])
 

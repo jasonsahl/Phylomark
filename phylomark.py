@@ -11,6 +11,10 @@ except:
     print("your phylomark environment is not set. Add the phylomark directory to your PYTHONPATH")
     sys.exit()
 
+def is_tool(name):
+    from distutils.spawn import find_executable
+    return find_executable(name) is not None
+
 def test_file(option, opt_str, value, parser):
     try:
         with open(value): setattr(parser.values, option.dest, value)
@@ -44,10 +48,8 @@ def main(ref,genes,genomes,tree,step_size,frag_length,parallel_workers):
         sys.exit()
     logging.logPrint("Checking the path of dependencies")
     for dependency in dependencies:
-        ra = subprocess.call(['which', '%s' % dependency])
-        if ra == 0:
-            pass
-        else:
+        result = is_tool(dependency)
+        if result is False:
             print("%s is not in your path, but needs to be!" % dependency)
             sys.exit()
     genome_path = os.path.abspath("%s" % genomes)
@@ -93,13 +95,15 @@ def main(ref,genes,genomes,tree,step_size,frag_length,parallel_workers):
     process_tmp_trees()
     logging.logPrint("Cleaning up")
     try:
-        subprocess.check_call("rm length.txt distance.txt name.txt polys.txt tmp.txt all_distances.txt combined.seqs*", shell=True)
+        subprocess.check_call("rm length.txt distance.txt name.txt polys.txt tmp.txt *euc_dist.txt all_distances.txt combined.seqs*", shell=True)
     except:
-        sys.exc_clear()
+        pass
+    if "NULL" not in genes:
+        os.system("rm query_sequences.fasta")
 
 if __name__ == "__main__":
     usage="usage: %prog [options]"
-    parser = OptionParser(usage="usage: %prog [options]",version="%prog 1.6")
+    parser = OptionParser(usage="usage: %prog [options]",version="%prog 1.7")
     parser.add_option("-r", "--ref_file", dest="ref",
                       help="/path/to/reference_genome [optional], use if genes not used",
                       action="callback", callback=test_file, type="string", default="NULL")
