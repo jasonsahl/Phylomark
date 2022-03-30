@@ -22,9 +22,9 @@ v_1_5: Code rewritten for consistency with new programs as well as working with 
 
 -Clone the repo from github:
 
-`git clone https://github.com/jasonsahl/Phylomark.git`
-`cd Phylomark`
-python setup.py install --user
+`git clone https://github.com/jasonsahl/Phylomark.git`  
+`cd Phylomark`  
+python setup.py install --user  
 
 Then set your PYTHONPATH to include Phylomark
 
