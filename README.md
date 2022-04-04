@@ -16,9 +16,8 @@ v_1_5: Code rewritten for consistency with new programs as well as working with 
 
 -The easiest way to install Phylomark is through Conda:
 
-`conda create -n phylomark python=3.7`  
+`conda create -n phylomark -c bioconda python=3.7 muscle fasttree blast biopython dendropy mothur`  
 `conda activate phylomark`  
-`conda install -c bioconda muscle fasttree blast biopython dendropy mothur`  
 
 -Clone the repo from github:
 
@@ -28,7 +27,7 @@ v_1_5: Code rewritten for consistency with new programs as well as working with 
 
 Then set your PYTHONPATH to include Phylomark
 
-`export PYTHOPATH=/Users/jsahl/Phylomark:$PYTHONPATH`
+`export PYTHONPATH=/Users/jsahl/Phylomark:$PYTHONPATH`
 
 To make this permanent, add this to your .bashrc or .profile
 
