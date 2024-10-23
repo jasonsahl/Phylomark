@@ -289,7 +289,7 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, num_refs):
                                                           _temp_name(tn, "blast_unique.parsed.txt")),shell=True)
         parsed_blast_to_seqs(_temp_name(tn, "blast_unique.parsed.txt"), _temp_name(tn, "seqs_in.fas"))
         #New function; I need to make sure and remove these temporary sequences
-        #replace_gaps(_temp_name(tn, "seqs_in.fas"), temp_name(tn, "seqs_clean.fas"))
+        replace_gaps(_temp_name(tn, "seqs_in.fas"), _temp_name(tn, "seqs_clean.fas"))
         #I need to replace the gaps before I move forward
         #check_and_align_seqs(_temp_name(tn, "seqs_in.fas"), num_refs, _temp_name(tn, "seqs_aligned.fas"))
         check_and_align_seqs(_temp_name(tn, "seqs_clean.fas"), num_refs, _temp_name(tn, "seqs_aligned.fas"))
