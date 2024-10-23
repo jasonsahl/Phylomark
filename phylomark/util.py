@@ -291,7 +291,6 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, num_refs):
         #New function; I need to make sure and remove these temporary sequences
         replace_gaps(_temp_name(tn, "seqs_in.fas"), _temp_name(tn, "seqs_clean.fas"))
         #I need to replace the gaps before I move forward
-        #check_and_align_seqs(_temp_name(tn, "seqs_in.fas"), num_refs, _temp_name(tn, "seqs_aligned.fas"))
         check_and_align_seqs(_temp_name(tn, "seqs_clean.fas"), num_refs, _temp_name(tn, "seqs_aligned.fas"))
         if os.path.isfile(_temp_name(tn, "seqs_aligned.fas")):
             """What if there are NO SNPs in a given region"""
@@ -328,7 +327,6 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, num_refs):
                                    _temp_name(tn, "seqs_in.fas"),
                                    _temp_name(tn, "seqs_clean.fas"),
                                    _temp_name(tn, "seqs_aligned.fas"),
-                                   #_temp_name(tn, "tmp.tree"),
                                    _temp_name(tn, "tmp.RF"),
                                    _temp_name(tn, "tmp.EU"),
                                    _temp_name(tn, "mask.txt"),
@@ -345,6 +343,7 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, num_refs):
                                    "%s.fasta" % tn,
                                    #_temp_name(tn, "euc_dist.txt"),
                                    _temp_name(tn, "blast_unique.parsed.txt"),
+                                   _temp_name(tn, "seqs_clean.fas"),
                                    _temp_name(tn, "seqs_in.fas")])
 
     files_and_temp_names = [(str(idx), f)
