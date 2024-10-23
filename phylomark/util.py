@@ -266,11 +266,11 @@ def replace_gaps(infile, outfile):
         for record in SeqIO.parse(my_fasta, "fasta"):
             new_seq =[]
             for base in record.seq:
-                if "-" == base:
+                if base == "-":
                     new_seq.append("")
                 else:
                     new_seq.append(base)
-            my_out.write(">"+record.id+"\n"+new_seq+"\n")
+            my_out.write(">"+record.id+"\n"+"".join(new_seq)+"\n")
     my_out.close()
 
 def tree_loop(fasta_dict, combined, tree, parallel_workers, num_refs):
