@@ -260,6 +260,19 @@ def check_and_align_seqs(infile, num_genomes, outfile):
     if (lengths[0]/lengths[-1]) > 0.75 and len(lengths) == num_genomes:
         subprocess.check_call("muscle -super5 %s -output %s" % (infile,outfile), stdout=open(os.devnull,'wb'),stderr=open(os.devnull,'wb'),shell=True)
 
+def replace_gaps(infile, outfile):
+    my_out = open(outfile, "w")
+    with open(infile) as my_fasta:
+        for record in SeqIO.parse(my_fasta, "fasta"):
+            new_seq =[]
+            for base in record.seq:
+                if "-" == base:
+                    new_seq.append("")
+                else:
+                    new_seq.append(base)
+            my_out.write(">"+record.id+"\n"+new_seq+"\n")
+    my_out.close()
+
 def tree_loop(fasta_dict, combined, tree, parallel_workers, num_refs):
     def _temp_name(t, f):
         return t + '_' + f
@@ -275,7 +288,11 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, num_refs):
         subprocess.check_call("sort -u -k 2,2 %s > %s" % (_temp_name(tn, "blast_parsed.txt"),
                                                           _temp_name(tn, "blast_unique.parsed.txt")),shell=True)
         parsed_blast_to_seqs(_temp_name(tn, "blast_unique.parsed.txt"), _temp_name(tn, "seqs_in.fas"))
-        check_and_align_seqs(_temp_name(tn, "seqs_in.fas"), num_refs, _temp_name(tn, "seqs_aligned.fas"))
+        #New function; I need to make sure and remove these temporary sequences
+        #replace_gaps(_temp_name(tn, "seqs_in.fas"), temp_name(tn, "seqs_clean.fas"))
+        #I need to replace the gaps before I move forward
+        #check_and_align_seqs(_temp_name(tn, "seqs_in.fas"), num_refs, _temp_name(tn, "seqs_aligned.fas"))
+        check_and_align_seqs(_temp_name(tn, "seqs_clean.fas"), num_refs, _temp_name(tn, "seqs_aligned.fas"))
         if os.path.isfile(_temp_name(tn, "seqs_aligned.fas")):
             """What if there are NO SNPs in a given region"""
             subprocess.call(['mothur',
@@ -309,6 +326,7 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, num_refs):
                                    "%s.fasta" % tn,
                                    _temp_name(tn, "blast_unique.parsed.txt"),
                                    _temp_name(tn, "seqs_in.fas"),
+                                   _temp_name(tn, "seqs_clean.fasta"),
                                    _temp_name(tn, "seqs_aligned.fas"),
                                    #_temp_name(tn, "tmp.tree"),
                                    _temp_name(tn, "tmp.RF"),
