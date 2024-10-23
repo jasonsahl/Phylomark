@@ -103,7 +103,7 @@ def main(ref,genes,genomes,tree,step_size,frag_length,parallel_workers):
 
 if __name__ == "__main__":
     usage="usage: %prog [options]"
-    parser = OptionParser(usage="usage: %prog [options]",version="%prog 1.7")
+    parser = OptionParser(usage="usage: %prog [options]",version="%prog 1.8")
     parser.add_option("-r", "--ref_file", dest="ref",
                       help="/path/to/reference_genome [optional], use if genes not used",
                       action="callback", callback=test_file, type="string", default="NULL")
