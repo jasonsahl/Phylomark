@@ -326,7 +326,7 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, num_refs):
                                    "%s.fasta" % tn,
                                    _temp_name(tn, "blast_unique.parsed.txt"),
                                    _temp_name(tn, "seqs_in.fas"),
-                                   _temp_name(tn, "seqs_clean.fasta"),
+                                   _temp_name(tn, "seqs_clean.fas"),
                                    _temp_name(tn, "seqs_aligned.fas"),
                                    #_temp_name(tn, "tmp.tree"),
                                    _temp_name(tn, "tmp.RF"),
