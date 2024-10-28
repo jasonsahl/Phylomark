@@ -4,7 +4,7 @@ contact: jasonsahl@gmail.com
 
 ### Changelog:
 
-v_1_2: fixed potential problem with read orientation prior to fragment alignmenti
+v_1_2: fixed potential problem with read orientation prior to fragment alignment
 
 v_1_3: fixed the script structure, added additional scripts and README details
 
@@ -12,11 +12,17 @@ v_1_4: Huge overhaul. Blastall changed to blast+. Took away the need for using M
 
 v_1_5: Code rewritten for consistency with new programs as well as working with Python 3.7+
 
+v_1_6: updated code to work with newer version of MUSCLE
+
+v_1_7: small edits to address bugs
+
+v_1_8: fixed BLAST gap problem that was causing problems with extracted BLAST alignments  
+
 ### Installation:
 
--The easiest way to install Phylomark is through Conda:
+-The easiest way to install Phylomark is through Conda; the successfully tested version of Python is 3.10.11:
 
-`conda create -n phylomark python=3.7`  
+`conda create -n phylomark`  
 `conda activate phylomark`  
 `conda install -c bioconda muscle fasttree blast biopython dendropy mothur`  
 
