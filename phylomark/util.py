@@ -327,7 +327,8 @@ def tree_loop(fasta_dict, combined, tree, parallel_workers, num_refs):
                                    _temp_name(tn, "seqs_in.fas"),
                                    _temp_name(tn, "seqs_clean.fas"),
                                    _temp_name(tn, "seqs_aligned.fas"),
-                                   _temp_name(tn, "tmp.tree"),
+                                   #not commenting out this line was causing a failure to produce the full set of trees
+                                   #_temp_name(tn, "tmp.tree"),
                                    _temp_name(tn, "tmp.RF"),
                                    _temp_name(tn, "tmp.EU"),
                                    _temp_name(tn, "mask.txt"),
